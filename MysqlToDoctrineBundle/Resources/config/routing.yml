@@ -1,0 +1,3 @@
+sebk_mysql_to_doctrine_homepage:
+    pattern:  /hello/{name}
+    defaults: { _controller: SebkMysqlToDoctrineBundle:Default:index }
