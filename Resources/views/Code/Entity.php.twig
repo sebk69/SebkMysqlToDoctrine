@@ -1,0 +1,143 @@
+<?php
+	// This doctrine entity class has been generated with SebkMysqlToDoctrineBundle
+	
+	namespace {{ namespace }};
+	
+	class {{ entityName }}
+	{
+{% if id is defined %}
+		// id properties
+{% for idElement in id %}
+		protected ${{ idElement.name }};
+		
+{% endfor %}
+{% endif %}
+{% if fields is defined %}
+		// fields properties
+{% for field in fields %}
+		protected ${{ field.name }};
+{% endfor %}
+		
+{% endif %}
+{% if manyToOne is defined %}
+		// manyToOne properties
+{% for manyToOneFields in manyToOne %}
+		protected ${{ manyToOneFields.name }};
+{% endfor %}
+		
+{% endif %}
+{% if oneToMany is defined %}
+		// oneToMany properties
+{% for oneToManyFields in oneToMany %}
+		protected ${{ oneToManyFields.name }};
+{% endfor %}
+		
+{% endif %}
+{% if manyToMany is defined %}
+		// manyToMany properties
+{% for manyToManyFields in manyToMany %}
+		protected ${{ manyToManyFields.name }};
+{% endfor %}
+		
+{% endif %}
+		public function __construct()
+		{
+{% if oneToMany is defined %}
+{% for oneToManyFields in oneToMany %}
+			$this->{{ oneToManyFields.name }} = new \Doctrine\Common\Collections\ArrayCollection();
+{% endfor %}
+{% endif %}
+{% if manyToMany is defined %}
+{% for manyToManyFields in manyToMany %}
+			$this->{{ manyToManyFields.name }} = new \Doctrine\Common\Collections\ArrayCollection();
+{% endfor %}
+{% endif %}
+		}
+		
+{% if id is defined %}
+{% for ids in id %}
+		public function get{{ ids.functionName }}()
+		{
+			return $this->{{ ids.name }};
+		}
+		
+{% endfor %}
+{% endif %}
+{% if field is defined %}
+{% for fields in field %}
+		public function get{{ fields.functionName }}()
+		{
+			return $this->{{ fields.name }};
+		}
+		
+{% endfor %}
+{% endif %}
+{% if oneToMany is defined %}
+{% for oneToManyFields in oneToMany %}
+		public function get{{ oneToManyFields.functionName }}()
+		{
+			return $this->{{ oneToManyFields.name }};
+		}
+		
+{% endfor %}
+{% endif %}
+{% if manyToMany is defined %}
+{% for manyToManyFields in manyToMany %}
+		public function get{{ manyToManyFields.functionName }}()
+		{
+			return $this->{{ manyToManyFields.name }};
+		}
+		
+{% endfor %}
+{% endif %}
+{% if manyToOne is defined %}
+{% for manyToOneFields in manyToOne %}
+		public function get{{ manyToOneFields.functionName }}()
+		{
+			return $this->{{ manyToOneFields.name }};
+		}
+		
+{% endfor %}
+{% endif %}
+{% if field is defined %}
+{% for fields in field %}
+		public function set{{ fields.functionName }}(${{ fields.functionName }})
+		{
+			$this->{{ fields.name }} = $parm;
+			return $this;
+		}
+		
+{% endfor %}
+{% endif %}
+{% if oneToMany is defined %}
+{% for oneToManyFields in oneToMany %}
+		public function set{{ oneToManyFields.functionName }}(${{ oneToManyFields.functionName }})
+		{
+			$this->{{ oneToManyFields.name }} = $parm;
+			return $this;
+		}
+		
+{% endfor %}
+{% endif %}
+{% if manyToOne is defined %}
+{% for manyToOneFields in manyToOne %}
+		public function set{{ manyToOneFields.functionName }}(${{ manyToOneFields.functionName }})
+		{
+			$this->{{ manyToOneFields.name }} = $parm;
+			return $this;
+		}
+		
+{% endfor %}
+{% endif %}
+{% if manyToMany is defined %}
+{% for manyToManyFields in manyToMany %}
+		public function set{{ manyToManyFields.functionName }}(${{ manyToManyFields.functionName }})
+		{
+			$this->{{ manyToManyFields.name }} = $parm;
+			return $this;
+		}
+		
+{% endfor %}
+{% endif %}
+}
+?>

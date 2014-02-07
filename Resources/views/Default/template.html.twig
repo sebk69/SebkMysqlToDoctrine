@@ -1,0 +1,23 @@
+<!doctype html>
+<html lang=fr>
+<head>
+<meta charset="utf-8">
+<title>MysqlToDoctrine - generation</title>
+<script src="http://code.jquery.com/jquery-2.1.0.min.js"></script>
+<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.0/css/bootstrap.min.css">
+<link rel="stylesheet" href="//netdna.bootstrapcdn.com/bootstrap/3.1.0/css/bootstrap-theme.min.css">
+<script src="//netdna.bootstrapcdn.com/bootstrap/3.1.0/js/bootstrap.min.js"></script>
+</head>
+<body>
+<div class=container>
+<div class=row>
+<h1>MysqlToDoctrine</h1>
+{% block body %}
+{% endblock %}
+{% if error is defined %}
+<div class=text-danger>{{ error }}</div>
+{% endif %}
+</div>
+</div>
+</body>
+</html>

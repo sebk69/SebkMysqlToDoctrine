@@ -1,0 +1,11 @@
+nbproject/
+example/result/
+tests/
+.buildpath
+.project
+.settings/
+*.zip
+*.sh
+*.7z
+vendor/*
+composer.lock

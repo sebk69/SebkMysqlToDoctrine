@@ -1,9 +1,0 @@
-parameters:
-#    sebk_mysql_to_doctrine.example.class: Sebk\MysqlToDoctrineBundle\Example
-
-services:
-    sebk_mysql_to_doctrine.parsing:
-        class: \Sebk\MysqlToDoctrine\Parsing\Parsing
-#    sebk_mysql_to_doctrine.example:
-#        class: %sebk_mysql_to_doctrine.example.class%
-#        arguments: [@service_id, "plain_value", %parameter%]

@@ -1,0 +1,22 @@
+Sebk\DixheureBundle\Entity\User:
+    type: entity
+    table: user
+    repositoryClass: Sebk\DixheureBundle\Entity\UserRepository
+    id:
+        id:
+            type: integer
+            generator:
+                strategy: AUTO
+    oneToMany:
+        connection_logs:
+            targetEntity: ConnectionLog
+            mappedBy: user
+            joinColumn:
+                name: user_id
+                referencedColumnName: id
+        playlists:
+            targetEntity: Playlist
+            mappedBy: user
+            joinColumn:
+                name: user_id
+                referencedColumnName: id

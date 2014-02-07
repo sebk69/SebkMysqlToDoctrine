@@ -1,0 +1,14 @@
+{% extends "SebkMysqlToDoctrineBundle:Default:template.html.twig" %}
+
+{% block body %}
+<form method="post" {{ form_enctype(form) }} role="form">
+<div class="form-group">
+	{{ form_row(form.bundle) }}
+	
+	{{ form_rest(form) }}
+</div>
+<script type="text/javascript">
+	$("#sebk_mysqltodoctrine_choosebundletype_bundle").change(function() { $("#sebk_mysqltodoctrine_choosebundletype_bundle").closest("form").submit(); });
+</script>
+</form>
+{% endblock %}

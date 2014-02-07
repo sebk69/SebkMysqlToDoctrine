@@ -1,0 +1,10 @@
+sebk_mysql_to_doctrine_index:
+    pattern:  /mysqltodoctrine
+    defaults: { _controller: SebkMysqlToDoctrineBundle:Default:index }
+sebk_mysql_to_doctrine_bundle_config:
+    pattern:  /mysqltodoctrine/config/{bundle}/{message}
+    defaults: { _controller: SebkMysqlToDoctrineBundle:Default:configBundle, message: null }
+sebk_mysql_to_doctrine_bundle_generate:
+    pattern:  /mysqltodoctrine/generate/{bundle}
+    defaults: { _controller: SebkMysqlToDoctrineBundle:Default:generateBundle }
+    
