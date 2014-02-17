@@ -142,6 +142,48 @@
 			return $this;
 		}
 		
+		public function getBusinessPath()
+		{
+			if(isset($this->configObject["business"]["path"]))
+				return $this->configObject["business"]["path"];
+			return null;
+		}
+				
+		public function setBusinessPath($value)
+		{
+			$this->configObject["business"]["path"] = $value;
+			
+			return $this;
+		}
+		
+		public function getBusinessNamespace()
+		{
+			if(isset($this->configObject["business"]["namespace"]))
+				return $this->configObject["business"]["namespace"];
+			return null;
+		}
+				
+		public function setBusinessNamespace($value)
+		{
+			$this->configObject["business"]["namespace"] = $value;
+			
+			return $this;
+		}
+		
+		public function getHeadComment()
+		{
+			if(isset($this->configObject["business"]["headComment"]))
+				return $this->configObject["business"]["headComment"];
+			return null;
+		}
+		
+		public function setHeadComment($value)
+		{
+			$this->configObject["business"]["headComment"] = $value;
+			
+			return $this;
+		}
+		
 		public function setFromArray($configObject)
 		{
 			$savedConfig = $this->configObject;
@@ -185,7 +227,7 @@
 			$this->validate();
 			
 			// dump config object to yaml
-			$yaml = $this->yamlDumper->dump($this->configObject);
+			$yaml = $this->yamlDumper->dump($this->configObject, 10);
 			
 			// write it on disk
 			file_put_contents(__DIR__.'/../Resources/config/'.$this->bundle.'.yaml', $yaml);

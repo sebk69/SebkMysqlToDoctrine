@@ -1,0 +1,11 @@
+<?php 
+{{ headComment }}
+
+	namespace {{ businessNamespace }};
+	
+	interface BusinessObjectInterface
+	{
+		public function setEntity($entity, $force);
+		public function persist();
+	}
+?>

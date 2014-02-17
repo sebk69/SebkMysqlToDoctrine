@@ -3,6 +3,8 @@
 	
 	namespace {{ namespace }};
 	
+	use Doctrine\Common\Collections\ArrayCollection;
+	
 	class {{ entityName }}
 	{
 {% if id is defined %}
@@ -63,11 +65,11 @@
 		
 {% endfor %}
 {% endif %}
-{% if field is defined %}
-{% for fields in field %}
-		public function get{{ fields.functionName }}()
+{% if fields is defined %}
+{% for field in fields %}
+		public function get{{ field.functionName }}()
 		{
-			return $this->{{ fields.name }};
+			return $this->{{ field.name }};
 		}
 		
 {% endfor %}
@@ -99,11 +101,11 @@
 		
 {% endfor %}
 {% endif %}
-{% if field is defined %}
-{% for fields in field %}
-		public function set{{ fields.functionName }}(${{ fields.functionName }})
+{% if fields is defined %}
+{% for field in fields %}
+		public function set{{ field.functionName }}($parm)
 		{
-			$this->{{ fields.name }} = $parm;
+			$this->{{ field.name }} = $parm;
 			return $this;
 		}
 		
@@ -111,7 +113,7 @@
 {% endif %}
 {% if oneToMany is defined %}
 {% for oneToManyFields in oneToMany %}
-		public function set{{ oneToManyFields.functionName }}(${{ oneToManyFields.functionName }})
+		public function set{{ oneToManyFields.functionName }}($parm)
 		{
 			$this->{{ oneToManyFields.name }} = $parm;
 			return $this;
@@ -121,7 +123,7 @@
 {% endif %}
 {% if manyToOne is defined %}
 {% for manyToOneFields in manyToOne %}
-		public function set{{ manyToOneFields.functionName }}(${{ manyToOneFields.functionName }})
+		public function set{{ manyToOneFields.functionName }}($parm)
 		{
 			$this->{{ manyToOneFields.name }} = $parm;
 			return $this;
@@ -131,7 +133,7 @@
 {% endif %}
 {% if manyToMany is defined %}
 {% for manyToManyFields in manyToMany %}
-		public function set{{ manyToManyFields.functionName }}(${{ manyToManyFields.functionName }})
+		public function set{{ manyToManyFields.functionName }}($parm)
 		{
 			$this->{{ manyToManyFields.name }} = $parm;
 			return $this;

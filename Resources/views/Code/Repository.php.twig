@@ -2,7 +2,9 @@
 	// This doctrine repository class has been generated with SebkMysqlToDoctrineBundle
 	namespace {{ namespace }};
 	
-	class {{ repositoryClass }}
+	use Doctrine\ORM\EntityRepository;
+	
+	class {{ repositoryClass }} extends EntityRepository
 	{
 	}
 ?>

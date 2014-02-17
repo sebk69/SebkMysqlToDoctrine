@@ -1,0 +1,38 @@
+<?php
+{{ headComment }}
+	
+	namespace {{ businessNamespace }};
+	
+	use Doctrine\Common\Collections\ArrayCollection;
+	
+	class BusinessCollection extends ArrayCollection
+	{
+		private $className;
+		
+		protected function setClass($className)
+		{
+			$this->className = $className;
+		}
+		
+		public function addAndBuildFromEntities($entities, $entityManager)
+		{
+			foreach($entities as $entity)
+				$this->addAndBuildFromEntity($entity, $entityManager);
+		}
+		
+		public function addAndBuildFromEntity($entity, $entityManager)
+		{
+			$className = $this->className;
+			$businessObject = new $className($entityManager);
+			$businessObject->setEntity($entity);
+		}
+		
+		public function getEntities()
+		{
+			$result = new ArrayCollection();
+			foreach($this as $bo)
+				$result[] = $bo->getEntity();
+			return $result;
+		}
+	}
+?>

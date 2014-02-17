@@ -90,6 +90,30 @@
 							echo "$yamlFile : ".$e->getMessage();
 					}
 			
+			// add some options to yaml
+			foreach($this->yamlObjects as $yamlFile => $yamlObject)
+			{
+				foreach($yamlObject as $heading => $subobject)
+					foreach($subobject as $tag => $value)
+					{
+						switch($tag)
+						{
+							case "manyToOne":
+							case "manyToMany":
+							case "oneToMany":
+								foreach($value as $field => $fieldTags)
+								{
+									$yamlObject[$heading][$tag][$field]["cascade"] = array("persist", "merge", "detach");
+								}
+							break;
+							
+							default:
+						}
+					}
+				$this->dumpOutput->setIndentation(4);
+				file_put_contents($tmp."/".$yamlFile, $this->dumpOutput->dump($yamlObject, 10));
+			}
+			
 			// Setup additionnal parameters to be usable by twig
 			foreach($this->yamlObjects as $yamlFile => $yamlObject)
 			{
@@ -109,6 +133,10 @@
 				
 				$entityName = $yamlObject["entityName"] = $savedPartString;
 				$yamlObject["namespace"] = substr($namespace, 0, strlen($namespace) - 1);
+				$yamlObject["businessNamespace"] = $this->config->getBusinessNamespace();
+				$yamlObject["businessPath"] = $this->config->getBusinessPath();
+				$yamlObject["headComment"] = $this->config->getHeadComment();
+				$yamlObject["bundle"] = $this->config->getBundle();
 				
 				foreach($yamlObject as $subObjectName => $subObjectPart)
 				{
@@ -133,7 +161,7 @@
 						foreach($subObjectPart as $manyToOneName => $manyToOnePart)
 						{
 							$yamlObject["manyToOne"][$manyToOneName]["name"] = $manyToOneName;
-							$yamlObject["manyToOne"][$manyToOneName]["functionName"] = self::formatFieldNameForMethod($manyToOneName);
+							$yamlObject["manyToOne"][$manyToOneName]["functionName"] = ucfirst($manyToOneName);
 						}
 					
 					// - Get oneToMany names and functions name
@@ -141,7 +169,7 @@
 						foreach($subObjectPart as $oneToManyName => $oneToManyPart)
 						{
 							$yamlObject["oneToMany"][$oneToManyName]["name"] = $oneToManyName;
-							$yamlObject["oneToMany"][$oneToManyName]["functionName"] = self::formatFieldNameForMethod($oneToManyName);
+							$yamlObject["oneToMany"][$oneToManyName]["functionName"] = ucfirst($oneToManyName);
 						}
 					
 					// - Get manyToMany names and functions name
@@ -149,17 +177,20 @@
 						foreach($subObjectPart as $manyToManyName => $manyToManyPart)
 						{
 							$yamlObject["manyToMany"][$manyToManyName]["name"] = $manyToManyName;
-							$yamlObject["manyToMany"][$manyToManyName]["functionName"] = self::formatFieldNameForMethod($manyToManyName);
+							$yamlObject["manyToMany"][$manyToManyName]["functionName"] = ucfirst($manyToManyName);
 						}
 					
 				}
 				
-				// and render with twig
+				// and build code
+				
+				// yaml file
 				$yamlBundlePath = __DIR__.'/../../../../'.$this->getConfig()->getBundlePath()."/Resources/config/doctrine";
 				if(!file_exists($yamlBundlePath))
 					mkdir($yamlBundlePath);
-				rename($tmp."/".$yamlFile, $yamlBundlePath."/".$entityName.".yml");
+				rename($tmp."/".$yamlFile, $yamlBundlePath."/".$entityName.".orm.yml");
 				
+				// doctrine entity class and repository class
 				$entitiesPath = __DIR__.'/../../../../'.$configObject["bundle"]["path"].'/'.$configObject["entities"]["path"].'/';
 				$entityFileName = $entityName.'.php';
 				
@@ -167,17 +198,96 @@
 				if(!file_exists($entitiesPath.$entityFileName) || $this->getConfig()->getReplaceEntities())
 					file_put_contents($entitiesPath.$entityFileName, 
 										$this->templating->render('SebkMysqlToDoctrineBundle:Code:Entity.php.twig', $yamlObject));
-				
 				if(!file_exists($entitiesPath.$repositoryFileName) || $this->getConfig()->getReplaceRepositories())
 					file_put_contents($entitiesPath.$repositoryFileName, 
 										$this->templating->render('SebkMysqlToDoctrineBundle:Code:Repository.php.twig', $yamlObject));
+				
+				// business object and collection
+				$businessPath = __DIR__.'/../../../../'.$configObject["bundle"]["path"].'/'.$configObject["business"]["path"].'/';
+				if(!file_exists($businessPath))
+					mkdir($businessPath);
+				$fileContents = $this->templating->render('SebkMysqlToDoctrineBundle:Code:BusinessObject.php.twig', $yamlObject);
+				
+				// custom uses code
+				$beginUses = "	/******Begin Custom Uses*/\n";
+				$endUses = "	/******End Custom Uses*/\n";
+				$customUses = $this->extractCustomCode($businessPath.$entityName.".php", $beginUses, $endUses);
+				if($customUses)
+					$fileContents = str_replace($beginUses.$endUses, $customUses, $fileContents);
+				// custom exception code
+				$beginException = "		/******Begin Custom Exception*/\n";
+				$endException = "		/******End Custom Exception*/\n";
+				$customException = $this->extractCustomCode($businessPath.$entityName.".php", $beginException, $endException);
+				if($customException)
+					$fileContents = str_replace($beginException.$endException, $customException, $fileContents);
+				// custom extensions and implements code
+				$beginExtensions = "	/******Begin Custom Extends And Implements*/\n";
+				$endExtensions = "	/******End Custom Extends And Implements*/\n";
+				$customExtensions = $this->extractCustomCode($businessPath.$entityName.".php", $beginExtensions, $endExtensions);
+				if($customExtensions)
+					$fileContents = str_replace($beginExtensions.$endExtensions, $customExtensions, $fileContents);
+				// custom properties code
+				$beginProperties = "		/******Begin Custom Properties*/\n";
+				$endProperties = "		/******End Custom Properties*/\n";
+				$customProperties = $this->extractCustomCode($businessPath.$entityName.".php", $beginProperties, $endProperties);
+				if($customProperties)
+					$fileContents = str_replace($beginProperties.$endProperties, $customProperties, $fileContents);
+				// custom methods code
+				$beginMethods = "		/******Begin Custom Methods*/\n";
+				$endMethods = "		/******End Custom Methods*/\n";
+				$customMethods = $this->extractCustomCode($businessPath.$entityName.".php", $beginMethods, $endMethods);
+				if($customMethods)
+					$fileContents = str_replace($beginMethods.$endMethods, $customMethods, $fileContents);
+				
+				file_put_contents($businessPath.$entityName.".php", $fileContents);
+				
+				$baseCode = $this->templating->render('SebkMysqlToDoctrineBundle:Code:BusinessObjectCollection.php.twig', $yamlObject);
+				$customCode = $this->extractCustomCode($businessPath.$entityName."Collection.php", $beginMethods, $endMethods);
+				$fileContents = str_replace($beginMethods.$endMethods, $customCode, $baseCode);
+				file_put_contents($businessPath.$entityName."Collection.php", $fileContents);
 			}
+						
+			// render common business objects
+			$parms["businessNamespace"] = $this->config->getBusinessNamespace();
+			$parms["businessPath"] = $this->config->getBusinessPath();
+			$parms["headComment"] = $this->config->getHeadComment();
+			file_put_contents($businessPath."BusinessCollection.php",
+					$this->templating->render('SebkMysqlToDoctrineBundle:Code:BusinessCollection.php.twig', $parms));
+			file_put_contents($businessPath."BusinessException.php",
+					$this->templating->render('SebkMysqlToDoctrineBundle:Code:BusinessException.php.twig', $parms));
+			file_put_contents($businessPath."BusinessObjectInterface.php",
+					$this->templating->render('SebkMysqlToDoctrineBundle:Code:BusinessObjectInterface.php.twig', $parms));
+		}
+		
+		/**
+		 * Extract custom code in file
+		 * @param string filename
+		 */
+		private function extractCustomCode($filename, $begin, $end)
+		{
+			@$f = fopen($filename, "r");
+			if($f === false)
+				return $begin.$end;
+			
+			$start = false;
+			$result = "";
+			while(false !== ($line = fgets($f)))
+			{
+				if(trim($line) == trim($begin))
+					$start = true;
+				if($start)
+					$result .= $line;
+				if(trim($line) == trim($end))
+					return $result;
+			}
+			
+			return $result;
 		}
 		
 		/**
 		 * Return the part (partNo) of the line separated by specific char
 		 *
-		 * @param strin $line
+		 * @param string $line
 		 * @param int $partNo
 		 * @param string $sepChar
 		 * @return string|NULL

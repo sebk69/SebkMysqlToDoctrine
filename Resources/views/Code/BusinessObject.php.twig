@@ -1,0 +1,250 @@
+<?php
+{{ headComment }}
+	
+	namespace {{ businessNamespace }};
+	
+	use {{ namespace }}\{{ entityName }} as {{ entityName }}Entity;
+	use {{ namespace }}\{{ repositoryClass }};
+	use {{ businessNamespace }}\BusinessException;
+	use Doctrine\ORM\EntityManager;
+	/******Begin Custom Uses*/
+	/******End Custom Uses*/
+	
+	class {{ entityName }}Exception extends BusinessException
+	{
+		/******Begin Custom Exception*/
+		/******End Custom Exception*/
+	};
+	
+	/**
+{% if fields is defined %}
+{% for field in fields %}
+	 * @method unkown get{{ field.functionName }}()
+	 * @method set{{ field.functionName }}(unknown ${{ field.functionName }})
+{% endfor %}
+{% endif %}
+{% if manyToOne is defined %}
+{% for manyToOneField in manyToOne %}
+	 * @method unkown get{{ manyToOneField.functionName }}()
+	 * @method set{{ manyToOneField.functionName }}(unknown ${{ manyToOneField.functionName }})
+{% endfor %}
+{% endif %}
+{% if oneToMany is defined %}
+{% for oneToManyField in oneToMany %}
+	 * @method unkown get{{ oneToManyField.functionName }}()
+{% endfor %}
+{% endif %}
+{% if manyToMany is defined %}
+{% for manyToManyField in manyToMany %}
+	 * @method unkown get{{ manyToManyField.functionName }}()
+{% endfor %}
+{% endif %}
+	 */
+	class {{ entityName }}
+	/******Begin Custom Extends And Implements*/
+	/******End Custom Extends And Implements*/
+	implements BusinessObjectInterface
+	{
+		/**
+		 * @var EntityManager
+		 */
+		private $entityManager;
+		
+		/**
+		 * @var {{ entityName }}Entity
+		 */
+		private $entity;
+		
+		/**
+		 * @var {{ repositoryClass }}
+		 */
+		protected $repository;
+		
+{% if manyToOne is defined %}
+{% for manyToOneField in manyToOne %}
+		/**
+		 * @var {{ manyToOneField.name }}
+		 */
+		private ${{ manyToOneField.name }};
+		
+{% endfor %}
+{% endif %}
+{% if oneToMany is defined %}
+{% for oneToManyField in oneToMany %}
+		/**
+		 * @var {{ oneToManyField.name }}
+		 */
+		private ${{ oneToManyField.name }};
+		
+{% endfor %}
+{% endif %}
+{% if manyToMany is defined %}
+{% for manyToManyField in manyToMany %}
+		/**
+		 * @var {{ manyToManyField.name }}
+		 */
+		private ${{ manyToManyField.name }};
+		
+{% endfor %}
+{% endif %}
+		/******Begin Custom Properties*/
+		/******End Custom Properties*/
+		
+		/**
+		 * {{ entityName }} constructor
+		 * @param EntityManager $em
+		 */
+		public function __construct(EntityManager $em)
+		{
+			$this->entityManager = $em;
+			$this->repository = $em->getRepository("{{ bundle }}:{{ entityName }}");
+			$this->entity = new {{ entityName }}Entity;
+/*{% if manyToOne is defined %}
+{% for manyToOneField in manyToOne %}
+			$this->{{ manyToOneField.name }} =  new {{ manyToOneField.targetEntity }}($this->entityManager);
+{% endfor %}
+{% endif %}
+{% if oneToMany is defined %}
+{% for oneToManyField in oneToMany %}
+			$this->{{ oneToManyField.name }} = new {{ oneToManyField.targetEntity }}Collection;
+{% endfor %}
+{% endif %}
+{% if manyToMany is defined %}
+{% for manyToManyField in manyToMany %}
+			$this->{{ manyToManyField.name }} = new {{ manyToManyField.targetEntity }}Collection;
+{% endfor %}
+{% endif %}*/
+		}
+		
+		/**
+		 * Magic method for implement getters and setters of entity
+		 * @param string $method
+		 * @param string $arguments
+		 * @return mixed
+		 */
+		public function __call($method, $arguments)
+		{
+			if(substr($method, 0, 3) == "get" || substr($method, 0, 3) == "set")
+			{
+				if(method_exists($this->entity, $method))
+					return call_user_method_array($method, $this->entity, $arguments);
+			}
+			
+			trigger_error("Method '$method' does not exists in {{ entityName }} entity (Raised in business object __call)", E_USER_ERROR);
+		}
+		
+		/**
+		 * get entity property
+		 * @return {{ entityName }}Entity
+		 */
+		public function getEntity()
+		{
+			return $this->entity;
+		}
+		
+		/**
+		 * set entity property
+		 * @param {{ entityName }}Entity $entity
+		 * @param boolean $force
+		 */
+		public function setEntity($entity, $force = false)
+		{
+			$this->entity = $entity;
+			
+			return $this;
+		}
+		
+{% if manyToOne is defined %}
+{% for manyToOneField in manyToOne %}
+		/**
+		 * get {{ manyToOneField.name }} property
+		 * @return \{{ namespace}}\{{ manyToOneField.inversedBy }}
+		 */
+		public function get{{ manyToOneField.functionName }}()
+		{
+			if($this->{{ manyToOneField.name }} === null)
+				$this->{{ manyToOneField.name }}->setEntity($this->entity->get{{ manyToOneField.functionName }}());
+						
+			return $this->{{ manyToOneField.name }};
+		}
+		
+		/**
+		 * set {{ manyToOneField.name }} property
+		 * @param {{ manyToOneField.targetEntity }} $artist
+		 */
+		public function set{{ manyToOneField.functionName }}({{ manyToOneField.targetEntity }} ${{ manyToOneField.name }})
+		{
+			$this->{{ manyToOneField.name }} = ${{ manyToOneField.name }};
+			return $this;
+		}
+		
+{% endfor %}
+{% endif %}
+{% if oneToMany is defined %}
+{% for oneToManyField in oneToMany %}
+		/**
+		 * get {{ oneToManyField.name }} collection
+		 * @return {{ oneToManyField.targetEntity }}Collection
+		 */
+		public function get{{ oneToManyField.functionName }}()
+		{
+			if($this->{{ oneToManyField.name }} === null)
+			{
+				$this->{{ oneToManyField.name }} = new {{ oneToManyField.targetEntity }}Collection();
+				$this->{{ oneToManyField.name }}->addAndBuildFromEntities($this->entity->get{{ oneToManyField.functionName }}(), $this->entityManager);
+			}
+			
+			return $this->{{ oneToManyField.name }};
+		}
+		
+{% endfor %}
+{% endif %}
+{% if manyToMany is defined %}
+{% for manyToManyField in manyToMany %}
+		/**
+		 * get {{ manyToManyField.name }} collection
+		 * @return {{ manyToManyField.targetEntity }}Collection
+		 */
+		public function get{{ manyToManyField.functionName }}()
+		{
+			if($this->{{ manyToManyField.name }} === null)
+			{
+				$this->{{ manyToManyField.name }} = new {{ manyToManyField.targetEntity }}Collection();
+				$this->{{ manyToManyField.name }}->addAndBuildFromEntities($this->entity->get{{ manyToManyField.functionName }}(), $this->entityManager);
+			}
+			
+			return $this->{{ manyToManyField.name }};
+		}
+		
+{% endfor %}
+{% endif %}
+		/**
+		 * persist object and dependencies
+		 */
+		public function persist()
+		{
+{% if manyToOne is defined %}
+{% for manyToOneField in manyToOne %}
+			if($this->{{ manyToOneField.name }} !== null)
+				$this->entity->set{{ manyToOneField.functionName }}($this->{{ manyToOneField.name }}->getEntity());
+{% endfor %}
+{% endif %}
+{% if oneToMany is defined %}
+{% for oneToManyField in oneToMany %}
+			if($this->{{ oneToManyField.name }} !== null)
+				$this->entity->set{{ oneToManyField.functionName }}($this->{{ oneToManyField.name }}->getEntity());
+{% endfor %}
+{% endif %}
+{% if manyToMany is defined %}
+{% for manyToManyField in manyToMany %}
+			if($this->{{ manyToManyField.name }} !== null)
+				$this->entity->set{{ manyToManyField.functionName }}($this->{{ manyToManyField.name }}->getEntities());
+{% endfor %}
+{% endif %}
+			$this->entityManager->persist($this->entity);
+		}
+		
+		/******Begin Custom Methods*/
+		/******End Custom Methods*/
+	}
+?>

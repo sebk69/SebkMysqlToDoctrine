@@ -1,0 +1,20 @@
+<?php 
+{{ headComment }}
+	
+	namespace {{ businessNamespace }};
+	
+	use {{ businessNamespace }}\BusinessCollection;
+	use Doctrine\Common\Collections\ArrayCollection;
+	
+	class {{ entityName }}Collection extends BusinessCollection
+	{
+		public function __Construct(Array $array = array())
+		{
+			$this->setClass("\{{ businessNamespace }}\{{ entityName }}");
+			parent :: __construct($array);
+		}
+		
+		/******Begin Custom Code*/
+		/******End Custom Code*/
+	}
+?>
