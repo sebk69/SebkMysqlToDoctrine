@@ -191,13 +191,22 @@
 				rename($tmp."/".$yamlFile, $yamlBundlePath."/".$entityName.".orm.yml");
 				
 				// doctrine entity class and repository class
-				$entitiesPath = __DIR__.'/../../../../'.$configObject["bundle"]["path"].'/'.$configObject["entities"]["path"].'/';
+				// custom extensions and implements code
 				$entityFileName = $entityName.'.php';
+				$entitiesPath = __DIR__.'/../../../../'.$configObject["bundle"]["path"].'/'.$configObject["entities"]["path"].'/';
+				$beginExtensions = "	/******Begin Custom Extends And Implements*/\n";
+				$endExtensions = "	/******End Custom Extends And Implements*/\n";
+				$customExtensions = $this->extractCustomCode($entitiesPath.$entityFileName, $beginExtensions, $endExtensions);
+				if(strstr($customExtensions, "extends") !== false)
+					$yamlObject["extends"] = true;
+				$fileContents = $this->templating->render('SebkMysqlToDoctrineBundle:Code:Entity.php.twig', $yamlObject);
+				if($customExtensions)
+					$fileContents = str_replace($beginExtensions.$endExtensions, $customExtensions, $fileContents);
+				
+				if(!file_exists($entitiesPath.$entityFileName) || $this->getConfig()->getReplaceEntities())
+					file_put_contents($entitiesPath.$entityFileName, $fileContents);
 				
 				$repositoryFileName = $yamlObject["repositoryClass"].'.php';
-				if(!file_exists($entitiesPath.$entityFileName) || $this->getConfig()->getReplaceEntities())
-					file_put_contents($entitiesPath.$entityFileName, 
-										$this->templating->render('SebkMysqlToDoctrineBundle:Code:Entity.php.twig', $yamlObject));
 				if(!file_exists($entitiesPath.$repositoryFileName) || $this->getConfig()->getReplaceRepositories())
 					file_put_contents($entitiesPath.$repositoryFileName, 
 										$this->templating->render('SebkMysqlToDoctrineBundle:Code:Repository.php.twig', $yamlObject));

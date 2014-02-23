@@ -6,6 +6,8 @@
 	use Doctrine\Common\Collections\ArrayCollection;
 	
 	class {{ entityName }}
+	/******Begin Custom Extends And Implements*/
+	/******End Custom Extends And Implements*/
 	{
 {% if id is defined %}
 		// id properties
@@ -53,6 +55,9 @@
 {% for manyToManyFields in manyToMany %}
 			$this->{{ manyToManyFields.name }} = new \Doctrine\Common\Collections\ArrayCollection();
 {% endfor %}
+{% endif %}
+{% if extends is defined %}
+			parent :: __construct();
 {% endif %}
 		}
 		
