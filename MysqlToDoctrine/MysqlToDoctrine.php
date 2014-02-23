@@ -251,6 +251,7 @@
 			$parms["businessNamespace"] = $this->config->getBusinessNamespace();
 			$parms["businessPath"] = $this->config->getBusinessPath();
 			$parms["headComment"] = $this->config->getHeadComment();
+			$parms["bundle"] = $this->config->getBundle();
 			file_put_contents($businessPath."BusinessCollection.php",
 					$this->templating->render('SebkMysqlToDoctrineBundle:Code:BusinessCollection.php.twig', $parms));
 			file_put_contents($businessPath."BusinessException.php",

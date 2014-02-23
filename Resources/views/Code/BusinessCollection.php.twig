@@ -4,26 +4,52 @@
 	namespace {{ businessNamespace }};
 	
 	use Doctrine\Common\Collections\ArrayCollection;
+	use Doctrine\ORM\EntityManager;
 	
 	class BusinessCollection extends ArrayCollection
 	{
 		private $className;
+		protected $entityManager;
 		
+		/**
+		 * constructor
+		 * @parm EntityManager $entityManager
+		 * @parm Array $array
+		 */
+		public function __construct(EntityManager $entityManager, Array $array = array())
+		{
+			$this->entityManager = $entityManager;
+			parent :: __construct($array);
+		}
+		
+		/**
+		 * set class of the collection
+		 * @parm string $className
+		 */
 		protected function setClass($className)
 		{
 			$this->className = $className;
 		}
 		
-		public function addAndBuildFromEntities($entities, $entityManager)
+		/**
+		 * build from entities
+		 * @parm EntityManager $entityManager
+		 * @parm Array $array
+		 */
+		public function addAndBuildFromEntities($entities)
 		{
 			foreach($entities as $entity)
-				$this->addAndBuildFromEntity($entity, $entityManager);
+				$this->addAndBuildFromEntity($entity, $this->entityManager);
 		}
 		
-		public function addAndBuildFromEntity($entity, $entityManager)
+		/**
+		 * add an entity
+		 * @parm unknown $entity
+		 */
+		public function addAndBuildFromEntity($entity)
 		{
-			$className = $this->className;
-			$businessObject = new $className($entityManager);
+			$className = "\{{ businessNamespace }}\\".$this->className;
+			$businessObject = new $className($this->entityManager);
 			$businessObject->setEntity($entity);
 		}
 		
@@ -33,6 +59,15 @@
 			foreach($this as $bo)
 				$result[] = $bo->getEntity();
 			return $result;
+		}
+		
+		/**
+		 * Create all entities into collection
+		 */
+		public function addAll()
+		{
+			$entities = $this->entityManager->getRepository("{{ bundle }}:".$this->className)->findAll();
+			$this->addAndBuildFromEntities($entities);
 		}
 	}
 ?>

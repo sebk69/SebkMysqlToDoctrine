@@ -158,12 +158,15 @@
 {% for manyToOneField in manyToOne %}
 		/**
 		 * get {{ manyToOneField.name }} property
-		 * @return \{{ namespace}}\{{ manyToOneField.inversedBy }}
+		 * @return {{ manyToOneField.functionName }}
 		 */
 		public function get{{ manyToOneField.functionName }}()
 		{
 			if($this->{{ manyToOneField.name }} === null)
+			{
+				$this->{{ manyToOneField.name }} = new {{ manyToOneField.functionName }}($this->entityManager);
 				$this->{{ manyToOneField.name }}->setEntity($this->entity->get{{ manyToOneField.functionName }}());
+			}
 						
 			return $this->{{ manyToOneField.name }};
 		}
@@ -242,6 +245,14 @@
 {% endfor %}
 {% endif %}
 			$this->entityManager->persist($this->entity);
+		}
+		
+		/**
+		 * Remove entity from db
+		 */
+		public function remove()
+		{
+			$this->entityManager->remove($this->getEntity);
 		}
 		
 		/******Begin Custom Methods*/

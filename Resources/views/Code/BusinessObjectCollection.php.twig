@@ -5,13 +5,14 @@
 	
 	use {{ businessNamespace }}\BusinessCollection;
 	use Doctrine\Common\Collections\ArrayCollection;
+	use Doctrine\ORM\EntityManager;
 	
 	class {{ entityName }}Collection extends BusinessCollection
 	{
-		public function __Construct(Array $array = array())
+		public function __Construct(EntityManager $entityManager, Array $array = array())
 		{
-			$this->setClass("\{{ businessNamespace }}\{{ entityName }}");
-			parent :: __construct($array);
+			$this->setClass("{{ entityName }}");
+			parent :: __construct($entityManager, $array);
 		}
 		
 		/******Begin Custom Code*/
