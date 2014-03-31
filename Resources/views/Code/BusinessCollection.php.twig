@@ -38,7 +38,7 @@
 		 */
 		public function addAndBuildFromEntities($entities)
 		{
-			foreach($entities as $entity)
+			foreach($entities->toArray() as $entity)
 				$this->addAndBuildFromEntity($entity, $this->entityManager);
 		}
 		
@@ -51,6 +51,7 @@
 			$className = "\{{ businessNamespace }}\\".$this->className;
 			$businessObject = new $className($this->entityManager);
 			$businessObject->setEntity($entity);
+			$this[] = $businessObject;
 		}
 		
 		public function getEntities()

@@ -96,6 +96,15 @@
 				foreach($yamlObject as $heading => $subobject)
 					foreach($subobject as $tag => $value)
 					{
+						// correct mwbConverter bug
+						if($tag == "oneToMany")
+						{
+							foreach($value as $field => $fieldTags)
+							{
+								$yamlObject[$heading][$tag][$field]["mappedBy"] = $yamlObject[$heading]["table"];
+							}
+						}
+							
 						switch($tag)
 						{
 							case "manyToOne":
@@ -161,7 +170,7 @@
 						foreach($subObjectPart as $manyToOneName => $manyToOnePart)
 						{
 							$yamlObject["manyToOne"][$manyToOneName]["name"] = $manyToOneName;
-							$yamlObject["manyToOne"][$manyToOneName]["functionName"] = ucfirst($manyToOneName);
+							$yamlObject["manyToOne"][$manyToOneName]["functionName"] = self::formatFieldNameForMethod($manyToOneName);
 						}
 					
 					// - Get oneToMany names and functions name
@@ -169,7 +178,7 @@
 						foreach($subObjectPart as $oneToManyName => $oneToManyPart)
 						{
 							$yamlObject["oneToMany"][$oneToManyName]["name"] = $oneToManyName;
-							$yamlObject["oneToMany"][$oneToManyName]["functionName"] = ucfirst($oneToManyName);
+							$yamlObject["oneToMany"][$oneToManyName]["functionName"] = self::formatFieldNameForMethod($oneToManyName);
 						}
 					
 					// - Get manyToMany names and functions name
@@ -177,7 +186,7 @@
 						foreach($subObjectPart as $manyToManyName => $manyToManyPart)
 						{
 							$yamlObject["manyToMany"][$manyToManyName]["name"] = $manyToManyName;
-							$yamlObject["manyToMany"][$manyToManyName]["functionName"] = ucfirst($manyToManyName);
+							$yamlObject["manyToMany"][$manyToManyName]["functionName"] = self::formatFieldNameForMethod($manyToManyName);
 						}
 					
 				}
@@ -250,9 +259,10 @@
 				
 				file_put_contents($businessPath.$entityName.".php", $fileContents);
 				
-				$baseCode = $this->templating->render('SebkMysqlToDoctrineBundle:Code:BusinessObjectCollection.php.twig', $yamlObject);
-				$customCode = $this->extractCustomCode($businessPath.$entityName."Collection.php", $beginMethods, $endMethods);
-				$fileContents = str_replace($beginMethods.$endMethods, $customCode, $baseCode);
+				$fileContents = $this->templating->render('SebkMysqlToDoctrineBundle:Code:BusinessObjectCollection.php.twig', $yamlObject);
+				$customMethods = $this->extractCustomCode($businessPath.$entityName."Collection.php", $beginMethods, $endMethods);
+				if($customMethods)
+					$fileContents = str_replace($beginMethods.$endMethods, $customMethods, $fileContents);
 				file_put_contents($businessPath.$entityName."Collection.php", $fileContents);
 			}
 						

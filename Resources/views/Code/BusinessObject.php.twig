@@ -63,27 +63,27 @@
 {% if manyToOne is defined %}
 {% for manyToOneField in manyToOne %}
 		/**
-		 * @var {{ manyToOneField.name }}
+		 * @var {{ manyToOneField.functionName }}
 		 */
-		private ${{ manyToOneField.name }};
+		private ${{ manyToOneField.functionName }};
 		
 {% endfor %}
 {% endif %}
 {% if oneToMany is defined %}
 {% for oneToManyField in oneToMany %}
 		/**
-		 * @var {{ oneToManyField.name }}
+		 * @var {{ oneToManyField.functionName }}
 		 */
-		private ${{ oneToManyField.name }};
+		private ${{ oneToManyField.functionName }};
 		
 {% endfor %}
 {% endif %}
 {% if manyToMany is defined %}
 {% for manyToManyField in manyToMany %}
 		/**
-		 * @var {{ manyToManyField.name }}
+		 * @var {{ manyToManyField.functionName }}
 		 */
-		private ${{ manyToManyField.name }};
+		private ${{ manyToManyField.functionName }};
 		
 {% endfor %}
 {% endif %}
@@ -175,9 +175,9 @@
 		 * set {{ manyToOneField.name }} property
 		 * @param {{ manyToOneField.targetEntity }} $artist
 		 */
-		public function set{{ manyToOneField.functionName }}({{ manyToOneField.targetEntity }} ${{ manyToOneField.name }})
+		public function set{{ manyToOneField.functionName }}({{ manyToOneField.targetEntity }} ${{ manyToOneField.functionName }})
 		{
-			$this->{{ manyToOneField.name }} = ${{ manyToOneField.name }};
+			$this->{{ manyToOneField.functionName }} = ${{ manyToOneField.functionName }};
 			return $this;
 		}
 		
@@ -191,13 +191,13 @@
 		 */
 		public function get{{ oneToManyField.functionName }}()
 		{
-			if($this->{{ oneToManyField.name }} === null)
+			if($this->{{ oneToManyField.functionName }} === null)
 			{
-				$this->{{ oneToManyField.name }} = new {{ oneToManyField.targetEntity }}Collection();
-				$this->{{ oneToManyField.name }}->addAndBuildFromEntities($this->entity->get{{ oneToManyField.functionName }}(), $this->entityManager);
+				$this->{{ oneToManyField.functionName }} = new {{ oneToManyField.targetEntity }}Collection($this->entityManager);
+				$this->{{ oneToManyField.functionName }}->addAndBuildFromEntities($this->entity->get{{ oneToManyField.functionName }}());
 			}
 			
-			return $this->{{ oneToManyField.name }};
+			return $this->{{ oneToManyField.functionName }};
 		}
 		
 {% endfor %}
@@ -212,8 +212,8 @@
 		{
 			if($this->{{ manyToManyField.name }} === null)
 			{
-				$this->{{ manyToManyField.name }} = new {{ manyToManyField.targetEntity }}Collection();
-				$this->{{ manyToManyField.name }}->addAndBuildFromEntities($this->entity->get{{ manyToManyField.functionName }}(), $this->entityManager);
+				$this->{{ manyToManyField.name }} = new {{ manyToManyField.targetEntity }}Collection($this->entityManager);
+				$this->{{ manyToManyField.name }}->addAndBuildFromEntities($this->entity->get{{ manyToManyField.functionName }}());
 			}
 			
 			return $this->{{ manyToManyField.name }};
