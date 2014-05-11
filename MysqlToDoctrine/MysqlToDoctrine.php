@@ -71,8 +71,7 @@
 			$textOutput = "";
 			foreach($output as $line)
 				$textOutput .= $line."\n";
-			
-			//	throw new MysqlToDoctrineException($textOutput);
+				//throw new MysqlToDoctrineException($textOutput);
 			
 			// read all files into yamlObjects
 			$this->yamlObjects = array();

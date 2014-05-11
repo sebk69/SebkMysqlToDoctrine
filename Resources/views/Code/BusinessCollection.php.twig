@@ -38,7 +38,7 @@
 		 */
 		public function addAndBuildFromEntities($entities)
 		{
-			foreach($entities->toArray() as $entity)
+			foreach($entities as $entity)
 				$this->addAndBuildFromEntity($entity, $this->entityManager);
 		}
 		

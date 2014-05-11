@@ -23,22 +23,6 @@
 	 * @method set{{ field.functionName }}(unknown ${{ field.functionName }})
 {% endfor %}
 {% endif %}
-{% if manyToOne is defined %}
-{% for manyToOneField in manyToOne %}
-	 * @method unkown get{{ manyToOneField.functionName }}()
-	 * @method set{{ manyToOneField.functionName }}(unknown ${{ manyToOneField.functionName }})
-{% endfor %}
-{% endif %}
-{% if oneToMany is defined %}
-{% for oneToManyField in oneToMany %}
-	 * @method unkown get{{ oneToManyField.functionName }}()
-{% endfor %}
-{% endif %}
-{% if manyToMany is defined %}
-{% for manyToManyField in manyToMany %}
-	 * @method unkown get{{ manyToManyField.functionName }}()
-{% endfor %}
-{% endif %}
 	 */
 	class {{ entityName }}
 	/******Begin Custom Extends And Implements*/
@@ -65,7 +49,7 @@
 		/**
 		 * @var {{ manyToOneField.functionName }}
 		 */
-		private ${{ manyToOneField.functionName }};
+		private ${{ manyToOneField.name }};
 		
 {% endfor %}
 {% endif %}
@@ -74,7 +58,7 @@
 		/**
 		 * @var {{ oneToManyField.functionName }}
 		 */
-		private ${{ oneToManyField.functionName }};
+		private ${{ oneToManyField.name }};
 		
 {% endfor %}
 {% endif %}
@@ -83,7 +67,7 @@
 		/**
 		 * @var {{ manyToManyField.functionName }}
 		 */
-		private ${{ manyToManyField.functionName }};
+		private ${{ manyToManyField.name }};
 		
 {% endfor %}
 {% endif %}
@@ -127,7 +111,7 @@
 			if(substr($method, 0, 3) == "get" || substr($method, 0, 3) == "set")
 			{
 				if(method_exists($this->entity, $method))
-					return call_user_method_array($method, $this->entity, $arguments);
+					return call_user_func_array(array($this->entity, $method), $arguments);
 			}
 			
 			trigger_error("Method '$method' does not exists in {{ entityName }} entity (Raised in business object __call)", E_USER_ERROR);
@@ -175,9 +159,9 @@
 		 * set {{ manyToOneField.name }} property
 		 * @param {{ manyToOneField.targetEntity }} $artist
 		 */
-		public function set{{ manyToOneField.functionName }}({{ manyToOneField.targetEntity }} ${{ manyToOneField.functionName }})
+		public function set{{ manyToOneField.functionName }}({{ manyToOneField.targetEntity }} ${{ manyToOneField.name }})
 		{
-			$this->{{ manyToOneField.functionName }} = ${{ manyToOneField.functionName }};
+			$this->{{ manyToOneField.name }} = ${{ manyToOneField.name }};
 			return $this;
 		}
 		
@@ -191,10 +175,10 @@
 		 */
 		public function get{{ oneToManyField.functionName }}()
 		{
-			if($this->{{ oneToManyField.functionName }} === null)
+			if($this->{{ oneToManyField.name }} === null)
 			{
-				$this->{{ oneToManyField.functionName }} = new {{ oneToManyField.targetEntity }}Collection($this->entityManager);
-				$this->{{ oneToManyField.functionName }}->addAndBuildFromEntities($this->entity->get{{ oneToManyField.functionName }}());
+				$this->{{ oneToManyField.name }} = new {{ oneToManyField.targetEntity }}Collection($this->entityManager);
+				$this->{{ oneToManyField.name }}->addAndBuildFromEntities($this->entity->get{{ oneToManyField.functionName }}());
 			}
 			
 			return $this->{{ oneToManyField.functionName }};
@@ -252,9 +236,24 @@
 		 */
 		public function remove()
 		{
-			$this->entityManager->remove($this->getEntity);
+			$this->entityManager->remove($this->getEntity());
 		}
-		
+
+        /**
+         * Free object memory
+         */
+        public function free() {
+{% if manyToOne is defined %}
+{% for manyToOneField in manyToOne %}
+            if(is_object($this->{{ manyToOneField.name }})) {
+                $this->{{ manyToOneField.name }}->free();
+            }
+{% endfor %}
+{% endif %}
+            $this->entityManager->detach($this->entity);
+            unset($this->entity);
+            unset($this);
+        }
 		/******Begin Custom Methods*/
 		/******End Custom Methods*/
 	}
