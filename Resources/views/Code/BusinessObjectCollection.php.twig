@@ -9,10 +9,10 @@
 	
 	class {{ entityName }}Collection extends BusinessCollection
 	{
-		public function __Construct(EntityManager $entityManager, Array $array = array())
+		public function __Construct(EntityManager $entityManager, BusinessFactory $factory, Array $array = array())
 		{
 			$this->setClass("{{ entityName }}");
-			parent :: __construct($entityManager, $array);
+			parent :: __construct($entityManager, $factory, $array);
 		}
 		
 		/******Begin Custom Methods*/

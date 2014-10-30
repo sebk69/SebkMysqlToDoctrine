@@ -1,50 +1,54 @@
 {% extends "SebkMysqlToDoctrineBundle:Default:template.html.twig" %}
 
 {% block body %}
-<h3>{{ bundle }} <a href={{ path("sebk_mysql_to_doctrine_index") }}>X</a></h3>
-<br />
-<form method="post" {{ form_enctype(form) }} role="form">
-<div class="form-group">
-	{{ form_row(form.bundlePath) }}
-</div>
-<div class="form-group">
-	{{ form_row(form.entitiesPath) }}
-</div>
-<div class="form-group">
-	{{ form_row(form.entitiesNamespace) }}
-</div>
-<div class="form-group">
-	{{ form_row(form.businessPath) }}
-</div>
-<div class="form-group">
-	{{ form_row(form.businessNamespace) }}
-</div>
-<div class="form-group">
-	{{ form_row(form.headComment) }}
-</div>
-<div class="form-group">
-	{{ form_row(form.replaceEntities) }}
-	{{ form_row(form.replaceRepositories) }}
-</div>
-<div class="form-group">
-	{{ form_row(form.save) }}
-	{{ form_row(form.generate) }}
-</div>
-{% if message is defined %}
-<div>
-{% if message == 'generated' %}
-Les entités doctrine ont été générées correctement
-{% else %}
-{% if message == 'saved' %}
-La configuration a été sauvegardée
-{% else %}
-{% if message == 'custom' %}
-{{ messageCustom }}
-{% endif %}
-{% endif %}
-{% endif %}
-</div>
-{% endif %}
-	{{ form_rest(form) }}
-</form>
+    <h3>{{ bundle }} <a href={{ path("sebk_mysql_to_doctrine_index") }}>X</a></h3>
+    <br/>
+    <form method="post" {{ form_enctype(form) }} role="form">
+        <div class="form-group">
+            {{ form_row(form.bundlePath) }}
+        </div>
+        <div class="form-group">
+            {{ form_row(form.entitiesPath) }}
+        </div>
+        <div class="form-group">
+            {{ form_row(form.entitiesNamespace) }}
+        </div>
+        <div class="form-group">
+            {{ form_row(form.businessPath) }}
+        </div>
+        <div class="form-group">
+            {{ form_row(form.businessNamespace) }}
+        </div>
+        <div class="form-group">
+            {{ form_row(form.businessFactoryServiceName) }}
+        </div>
+        <div class="form-group">
+            {{ form_row(form.headComment) }}
+        </div>
+        <div class="form-group">
+            {{ form_row(form.replaceEntities) }}
+            {{ form_row(form.replaceRepositories) }}
+            {{ form_row(form.businessGeneration) }}
+        </div>
+        <div class="form-group">
+            {{ form_row(form.save) }}
+            {{ form_row(form.generate) }}
+        </div>
+        {% if message is defined %}
+            <div>
+                {% if message == 'generated' %}
+                    Les entités doctrine ont été générées correctement
+                {% else %}
+                    {% if message == 'saved' %}
+                        La configuration a été sauvegardée
+                    {% else %}
+                        {% if message == 'custom' %}
+                            {{ messageCustom }}
+                        {% endif %}
+                    {% endif %}
+                {% endif %}
+            </div>
+        {% endif %}
+        {{ form_rest(form) }}
+    </form>
 {% endblock %}

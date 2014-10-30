@@ -1,0 +1,41 @@
+<?php
+{{ headComment }}
+
+	namespace {{ businessNamespace }};
+	 
+
+    use Doctrine\ORM\EntityManager;
+
+    class BusinessFactory {
+        private $entityManager;
+
+        /**
+         * Service constructor
+         * @param EntityManager $entityManager
+         */
+        public function __construct(EntityManager $entityManager) {
+            $this->entityManager = $entityManager;
+        }
+
+        /**
+         * get business class
+         * @param $className
+         * @param Array $array
+         * @return mixed
+         * @throws \Exception
+        */
+        public function get($className, $array = array()) {
+            $className = '{{ businessNamespace }}\\'.$className;
+            if(!class_exists($className, true)) {
+                throw new \Exception("The class '$className' is not exists (generated in BusinessFactory)");
+            }
+
+            if(strstr($className, "Collection") === false && count($array)) {
+                throw new \Exception("The class '$className' is not a collection. You can't pass array in parameter. (generated in BusinessFactory)");
+            } elseif(strstr($className, "Collection") === false) {
+                return new $className($this->entityManager, $this);
+            } else {
+                return new $className($this->entityManager, $this, $array);
+            }
+        }
+    }

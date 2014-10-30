@@ -10,15 +10,18 @@
 	{
 		private $className;
 		protected $entityManager;
+		protected $factory;
 		
 		/**
 		 * constructor
 		 * @parm EntityManager $entityManager
+		 * @parm BusinessFactory $factory
 		 * @parm Array $array
 		 */
-		public function __construct(EntityManager $entityManager, Array $array = array())
+		public function __construct(EntityManager $entityManager, BusinessFactory $factory, Array $array = array())
 		{
 			$this->entityManager = $entityManager;
+            $this->factory = $factory;
 			parent :: __construct($array);
 		}
 		
@@ -48,8 +51,7 @@
 		 */
 		public function addAndBuildFromEntity($entity)
 		{
-			$className = "\{{ businessNamespace }}\\".$this->className;
-			$businessObject = new $className($this->entityManager);
+			$businessObject = $this->factory->get($this->className);
 			$businessObject->setEntity($entity);
 			$this[] = $businessObject;
 		}

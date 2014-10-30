@@ -84,7 +84,7 @@ class DefaultController extends Controller
     
     public function generateBundleAction($bundle)
     {
-    	ob_start();
+    	//ob_start();
     	try {
 	    	$generator = $this->get("sebk_mysql_to_doctrine.main");
 	    	$generator->setBundle($bundle);
@@ -96,7 +96,7 @@ class DefaultController extends Controller
     		$session->set("message", $e->getMessage());
     		return $this->redirect($this->generateUrl('sebk_mysql_to_doctrine_bundle_config', array('bundle' => $bundle, 'message' => 'error')));
     	}
-    	ob_end_clean();
+    	//ob_end_clean();
     	return $this->redirect($this->generateUrl('sebk_mysql_to_doctrine_bundle_config', array('bundle' => $bundle, 'message' => 'generated')));
     }
 }

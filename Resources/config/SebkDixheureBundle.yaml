@@ -8,3 +8,5 @@ business:
     path: Business
     namespace: Sebk\DixheureBundle\Business
     headComment: "/**\r\n * This file is a part of dixheure\r\n * Copyright 2014 - Sébastien Kus\r\n * Licenced under GNU GPL V3\r\n */"
+    factoryServiceName: sebk_dixheure_bundle_business_factory
+    generation: 'true'

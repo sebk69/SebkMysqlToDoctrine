@@ -20,10 +20,12 @@
 				->add("entitiesPath", "text", array("attr" => array("class" => "form-control")))
 				->add("entitiesNamespace", "text", array("attr" => array("class" => "form-control")))
 				->add("businessPath", "text", array("attr" => array("class" => "form-control")))
-				->add("businessNamespace", "text", array("attr" => array("class" => "form-control")))
+                ->add("businessNamespace", "text", array("attr" => array("class" => "form-control")))
+                ->add("businessFactoryServiceName", "text", array("attr" => array("class" => "form-control")))
 				->add("headComment", "textarea", array("attr" => array("class" => "form-control")))
 				->add("replaceEntities", "checkbox", array("required" => false, "attr" => array("class" => "form-control")))
-				->add("replaceRepositories", "checkbox", array("required" => false, "attr" => array("class" => "form-control")))
+                ->add("replaceRepositories", "checkbox", array("required" => false, "attr" => array("class" => "form-control")))
+                ->add("businessGeneration", "checkbox", array("required" => false, "attr" => array("class" => "form-control")))
 				->add("save", "submit", array("label" => "Save configutation", "attr" => array("class" => "form-control btn btn-default")))
 				->add("generate", "submit", array("label" => "Save and generate entities into bundle", "attr" => array("class" => "form-control btn btn-danger")));
 		}

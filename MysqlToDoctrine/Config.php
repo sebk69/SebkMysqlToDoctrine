@@ -77,15 +77,15 @@
 			
 			return $this;
 		}
-		
-			public function getReplaceEntities()
+
+        public function getReplaceEntities()
 		{
 			if(!isset($this->configObject["bundle"]["replaceEntities"]))
 				return true;
 			
 			return $this->configObject["bundle"]["replaceEntities"] == "true";
 		}
-		
+
 		public function setReplaceEntities($value)
 		{
 			if($value)
@@ -183,7 +183,36 @@
 			
 			return $this;
 		}
-		
+
+        public function getBusinessFactoryServiceName() {
+            if(isset($this->configObject["business"]["factoryServiceName"]))
+                return $this->configObject["business"]["factoryServiceName"];
+
+            return null;
+        }
+
+        public function setBusinessFactoryServiceName($value) {
+            $this->configObject["business"]["factoryServiceName"] = $value;
+
+            return $this;
+        }
+
+        public function getBusinessGeneration() {
+            if(isset($this->configObject["business"]["generation"])) {
+                return $this->configObject["business"]["generation"] == "true";
+            }
+
+            return true;
+        }
+
+        public function setBusinessGeneration($value) {
+            if($value) {
+                $this->configObject["business"]["generation"] = "true";
+            } else {
+                $this->configObject["business"]["generation"] = "false";
+            }
+        }
+
 		public function setFromArray($configObject)
 		{
 			$savedConfig = $this->configObject;

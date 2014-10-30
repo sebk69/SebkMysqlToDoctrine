@@ -68,11 +68,12 @@
 			file_put_contents($tmp.'/config.json', '{"export":"doctrine2-yaml","zip":false,"dir":"'.$tmp.'","params":{"indentation":4,"useTabs":false,"filename":"%entity%.dcm.%extension%","skipPluralNameChecking":false,"backupExistingFile":false,"useLoggedStorage":false,"enhanceManyToManyDetection":true,"logToConsole":false,"logFile":"","bundleNamespace":"","entityNamespace":"'.addslashes($this->config->getEntitiesNamespace()).'","repositoryNamespace":"","useAutomaticRepository":true,"extendTableNameWithSchemaName":false}}');
 			// parse it with mwbConverter
 			exec("echo 'n' | php ".dirname(__FILE__)."/../mwbConverter/cli/export.php --export=doctrine2-yaml --config='".$tmp."/config.json' '$mysqlFilename' 2>&1", $output, $result);
-			$textOutput = "";
-			foreach($output as $line)
-				$textOutput .= $line."\n";
-				//throw new MysqlToDoctrineException($textOutput);
-			
+			//throw new MysqlToDoctrineException("echo 'n' | php ".dirname(__FILE__)."/../mwbConverter/cli/export.php --export=doctrine2-yaml --config='".$tmp."/config.json' '$mysqlFilename' 2>&1");
+            $textOutput = "";
+			foreach($output as $line) {
+                $textOutput .= $line . "\n";
+            }
+
 			// read all files into yamlObjects
 			$this->yamlObjects = array();
 			$dir = dir($tmp);
@@ -123,7 +124,8 @@
 			}
 			
 			// Setup additionnal parameters to be usable by twig
-			foreach($this->yamlObjects as $yamlFile => $yamlObject)
+            $businessPath = __DIR__.'/../../../../'.$configObject["bundle"]["path"].'/'.$configObject["business"]["path"].'/';
+            foreach($this->yamlObjects as $yamlFile => $yamlObject)
 			{
 				// - Get namespace and entity name
 				foreach($yamlObject as $namespaceAndName => $subObject);
@@ -218,65 +220,82 @@
 				if(!file_exists($entitiesPath.$repositoryFileName) || $this->getConfig()->getReplaceRepositories())
 					file_put_contents($entitiesPath.$repositoryFileName, 
 										$this->templating->render('SebkMysqlToDoctrineBundle:Code:Repository.php.twig', $yamlObject));
-				
-				// business object and collection
-				$businessPath = __DIR__.'/../../../../'.$configObject["bundle"]["path"].'/'.$configObject["business"]["path"].'/';
-				if(!file_exists($businessPath))
-					mkdir($businessPath);
-				$fileContents = $this->templating->render('SebkMysqlToDoctrineBundle:Code:BusinessObject.php.twig', $yamlObject);
-				
-				// custom uses code
-				$beginUses = "	/******Begin Custom Uses*/\n";
-				$endUses = "	/******End Custom Uses*/\n";
-				$customUses = $this->extractCustomCode($businessPath.$entityName.".php", $beginUses, $endUses);
-				if($customUses)
-					$fileContents = str_replace($beginUses.$endUses, $customUses, $fileContents);
-				// custom exception code
-				$beginException = "		/******Begin Custom Exception*/\n";
-				$endException = "		/******End Custom Exception*/\n";
-				$customException = $this->extractCustomCode($businessPath.$entityName.".php", $beginException, $endException);
-				if($customException)
-					$fileContents = str_replace($beginException.$endException, $customException, $fileContents);
-				// custom extensions and implements code
-				$beginExtensions = "	/******Begin Custom Extends And Implements*/\n";
-				$endExtensions = "	/******End Custom Extends And Implements*/\n";
-				$customExtensions = $this->extractCustomCode($businessPath.$entityName.".php", $beginExtensions, $endExtensions);
-				if($customExtensions)
-					$fileContents = str_replace($beginExtensions.$endExtensions, $customExtensions, $fileContents);
-				// custom properties code
-				$beginProperties = "		/******Begin Custom Properties*/\n";
-				$endProperties = "		/******End Custom Properties*/\n";
-				$customProperties = $this->extractCustomCode($businessPath.$entityName.".php", $beginProperties, $endProperties);
-				if($customProperties)
-					$fileContents = str_replace($beginProperties.$endProperties, $customProperties, $fileContents);
-				// custom methods code
-				$beginMethods = "		/******Begin Custom Methods*/\n";
-				$endMethods = "		/******End Custom Methods*/\n";
-				$customMethods = $this->extractCustomCode($businessPath.$entityName.".php", $beginMethods, $endMethods);
-				if($customMethods)
-					$fileContents = str_replace($beginMethods.$endMethods, $customMethods, $fileContents);
-				
-				file_put_contents($businessPath.$entityName.".php", $fileContents);
-				
-				$fileContents = $this->templating->render('SebkMysqlToDoctrineBundle:Code:BusinessObjectCollection.php.twig', $yamlObject);
-				$customMethods = $this->extractCustomCode($businessPath.$entityName."Collection.php", $beginMethods, $endMethods);
-				if($customMethods)
-					$fileContents = str_replace($beginMethods.$endMethods, $customMethods, $fileContents);
-				file_put_contents($businessPath.$entityName."Collection.php", $fileContents);
+
+                if($this->config->getBusinessGeneration()) {
+                    // business object and collection
+                    if (!file_exists($businessPath))
+                        mkdir($businessPath);
+                    $fileContents = $this->templating->render('SebkMysqlToDoctrineBundle:Code:BusinessObject.php.twig', $yamlObject);
+
+                    // custom uses code
+                    $beginUses = "	/******Begin Custom Uses*/\n";
+                    $endUses = "	/******End Custom Uses*/\n";
+                    $customUses = $this->extractCustomCode($businessPath . $entityName . ".php", $beginUses, $endUses);
+                    if ($customUses)
+                        $fileContents = str_replace($beginUses . $endUses, $customUses, $fileContents);
+                    // custom extensions and implements code
+                    $beginExtensions = "	/******Begin Custom Extends And Implements*/\n";
+                    $endExtensions = "	/******End Custom Extends And Implements*/\n";
+                    $customExtensions = $this->extractCustomCode($businessPath . $entityName . ".php", $beginExtensions, $endExtensions);
+                    if ($customExtensions)
+                        $fileContents = str_replace($beginExtensions . $endExtensions, $customExtensions, $fileContents);
+                    // custom properties code
+                    $beginProperties = "		/******Begin Custom Properties*/\n";
+                    $endProperties = "		/******End Custom Properties*/\n";
+                    $customProperties = $this->extractCustomCode($businessPath . $entityName . ".php", $beginProperties, $endProperties);
+                    if ($customProperties)
+                        $fileContents = str_replace($beginProperties . $endProperties, $customProperties, $fileContents);
+                    // custom methods code
+                    $beginMethods = "		/******Begin Custom Methods*/\n";
+                    $endMethods = "		/******End Custom Methods*/\n";
+                    $customMethods = $this->extractCustomCode($businessPath . $entityName . ".php", $beginMethods, $endMethods);
+                    if ($customMethods)
+                        $fileContents = str_replace($beginMethods . $endMethods, $customMethods, $fileContents);
+
+                    file_put_contents($businessPath . $entityName . ".php", $fileContents);
+
+                    $fileContents = $this->templating->render('SebkMysqlToDoctrineBundle:Code:BusinessObjectCollection.php.twig', $yamlObject);
+                    $customMethods = $this->extractCustomCode($businessPath . $entityName . "Collection.php", $beginMethods, $endMethods);
+                    if ($customMethods)
+                        $fileContents = str_replace($beginMethods . $endMethods, $customMethods, $fileContents);
+                    file_put_contents($businessPath . $entityName . "Collection.php", $fileContents);
+
+                    // business object exception exception
+                    $fileContents = $this->templating->render('SebkMysqlToDoctrineBundle:Code:BusinessObjectException.php.twig', $yamlObject);
+                    $beginException = "		/******Begin Custom Exception*/\n";
+                    $endException = "		/******End Custom Exception*/\n";
+                    $customException = $this->extractCustomCode($businessPath . $entityName . "Exception.php", $beginException, $endException);
+                    if ($customException)
+                        $fileContents = str_replace($beginException . $endException, $customException, $fileContents);
+                    file_put_contents($businessPath . $entityName . "Exception.php", $fileContents);
+                }
 			}
 						
 			// render common business objects
-			$parms["businessNamespace"] = $this->config->getBusinessNamespace();
-			$parms["businessPath"] = $this->config->getBusinessPath();
-			$parms["headComment"] = $this->config->getHeadComment();
-			$parms["bundle"] = $this->config->getBundle();
-			file_put_contents($businessPath."BusinessCollection.php",
-					$this->templating->render('SebkMysqlToDoctrineBundle:Code:BusinessCollection.php.twig', $parms));
-			file_put_contents($businessPath."BusinessException.php",
-					$this->templating->render('SebkMysqlToDoctrineBundle:Code:BusinessException.php.twig', $parms));
-			file_put_contents($businessPath."BusinessObjectInterface.php",
-					$this->templating->render('SebkMysqlToDoctrineBundle:Code:BusinessObjectInterface.php.twig', $parms));
-		}
+            if($this->config->getBusinessGeneration()) {
+                $parms["businessNamespace"] = $this->config->getBusinessNamespace();
+                $parms["businessPath"] = $this->config->getBusinessPath();
+                $parms["headComment"] = $this->config->getHeadComment();
+                $parms["bundle"] = $this->config->getBundle();
+                file_put_contents($businessPath . "BusinessCollection.php",
+                    $this->templating->render('SebkMysqlToDoctrineBundle:Code:BusinessCollection.php.twig', $parms));
+                file_put_contents($businessPath . "BusinessException.php",
+                    $this->templating->render('SebkMysqlToDoctrineBundle:Code:BusinessException.php.twig', $parms));
+                file_put_contents($businessPath . "BusinessObjectInterface.php",
+                    $this->templating->render('SebkMysqlToDoctrineBundle:Code:BusinessObjectInterface.php.twig', $parms));
+                file_put_contents($businessPath . "BusinessFactory.php",
+                    $this->templating->render('SebkMysqlToDoctrineBundle:Code:BusinessFactory.php.twig', $parms));
+
+                // register BusinessFactory as service
+                $yamlServiceBundlePath = __DIR__ . '/../../../../' . $this->getConfig()->getBundlePath() . "/Resources/config/services.yml";
+                $serviceName = $this->config->getBusinessFactoryServiceName();
+                $serviceConfig = file_get_contents($yamlServiceBundlePath);
+                if (strstr($serviceConfig, $serviceName) === false) {
+                    $serviceConfig .= "\n    sebk_dixheure_bundle_business_factory:\n        class: " . $this->config->getBusinessPath() . "\\BusinessFactory\n        arguments: [@doctrine.orm.entity_manager]";
+                    file_put_contents($yamlServiceBundlePath, $serviceConfig);
+                }
+            }
+        }
 		
 		/**
 		 * Extract custom code in file
