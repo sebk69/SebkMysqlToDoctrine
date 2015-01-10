@@ -2,5 +2,8 @@
     "name": "sebk69/SebkMysqlToDoctrine",
     "license": "GPL V3",
     "type": "project",
-    "description": "Helper to generate business classes over doctrine entities"
+    "description": "Helper to generate business classes over doctrine entities",
+    "autoload": {
+        "psr-0": { "Sebk\\MysqlToDoctrineBundle\\": "" }
+    }
 }
