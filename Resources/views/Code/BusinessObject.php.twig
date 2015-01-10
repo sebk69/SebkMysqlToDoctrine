@@ -7,6 +7,7 @@
 	use {{ businessNamespace }}\{{ entityName }}Exception;
 	use {{ namespace }}\{{ repositoryClass }};
 	use Doctrine\ORM\EntityManager;
+    use Symfony\Component\DependencyInjection\Container;
 	/******Begin Custom Uses*/
 	/******End Custom Uses*/
 	
@@ -18,16 +19,20 @@
 {% endfor %}
 {% endif %}
 	 */
-	class {{ entityName }}
-	/******Begin Custom Extends And Implements*/
+	class {{ entityName }} implements BusinessObjectInterface
+    /******Begin Custom Extends And Implements*/
 	/******End Custom Extends And Implements*/
-	implements BusinessObjectInterface
 	{
 		/**
 		 * @var EntityManager
 		 */
 		private $entityManager;
 		
+		/**
+		 * @var Container
+		 */
+		private $container;
+
 		/**
 		 * @var BusinessFactory
 		 */
@@ -76,11 +81,13 @@
 		/**
 		 * {{ entityName }} constructor
 		 * @param EntityManager $em
+		 * @param Container $container
 		 * @param BusinessFactory $factory
 		 */
-		public function __construct(EntityManager $em, BusinessFactory $factory)
+		public function __construct(EntityManager $em, Container $container, BusinessFactory $factory)
 		{
 			$this->entityManager = $em;
+            $this->container = $container;
 			$this->repository = $em->getRepository("{{ bundle }}:{{ entityName }}");
 			$this->entity = new {{ entityName }}Entity;
             $this->factory = $factory;
@@ -119,6 +126,7 @@
 		 * set entity property
 		 * @param {{ entityName }}Entity $entity
 		 * @param boolean $force
+         * @return $this
 		 */
 		public function setEntity($entity, $force = false)
 		{
@@ -146,7 +154,8 @@
 		
 		/**
 		 * set {{ manyToOneField.functionName }} property
-		 * @param {{ manyToOneField.targetEntity }} $artist
+		 * @param {{ manyToOneField.targetEntity }} ${{ manyToOneField.functionName }}
+         * @return $this
 		 */
 		public function set{{ manyToOneField.functionName }}({{ manyToOneField.targetEntity }} ${{ manyToOneField.functionName }})
 		{
@@ -220,7 +229,7 @@
             }
 {% endfor %}
 {% endif %}
-			$this->entityManager->merge($this->entity);
+			$this->entityManager->persist($this->entity);
             $this->entityManager->flush();
 		}
 		
@@ -256,4 +265,3 @@
 		/******Begin Custom Methods*/
 		/******End Custom Methods*/
 	}
-?>

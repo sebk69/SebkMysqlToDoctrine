@@ -5,16 +5,19 @@
 	 
 
     use Doctrine\ORM\EntityManager;
+    use Symfony\Component\DependencyInjection\Container;
 
     class BusinessFactory {
         private $entityManager;
+        private $container;
 
         /**
          * Service constructor
          * @param EntityManager $entityManager
-         */
-        public function __construct(EntityManager $entityManager) {
+         * @param Container $container         */
+        public function __construct(EntityManager $entityManager, Container $container) {
             $this->entityManager = $entityManager;
+            $this->container = $container;
         }
 
         /**
@@ -33,7 +36,7 @@
             if(strstr($className, "Collection") === false && count($array)) {
                 throw new \Exception("The class '$className' is not a collection. You can't pass array in parameter. (generated in BusinessFactory)");
             } elseif(strstr($className, "Collection") === false) {
-                return new $className($this->entityManager, $this);
+                return new $className($this->entityManager, $this->container, $this);
             } else {
                 return new $className($this->entityManager, $this, $array);
             }

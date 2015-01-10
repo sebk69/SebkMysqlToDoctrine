@@ -5,72 +5,153 @@
 	
 	use Doctrine\Common\Collections\ArrayCollection;
 	use Doctrine\ORM\EntityManager;
-	
-	class BusinessCollection extends ArrayCollection
+    use Doctrine\ORM\QueryBuilder;
+
+	class BusinessCollection extends ArrayCollection implements \JsonSerializable
 	{
 		private $className;
 		protected $entityManager;
-		protected $factory;
+        protected $repository;
+        protected $factory;
 		
 		/**
 		 * constructor
-		 * @parm EntityManager $entityManager
-		 * @parm BusinessFactory $factory
-		 * @parm Array $array
+		 * @param EntityManager $entityManager
+		 * @param BusinessFactory $factory
+		 * @param Array $array
 		 */
 		public function __construct(EntityManager $entityManager, BusinessFactory $factory, Array $array = array())
 		{
 			$this->entityManager = $entityManager;
             $this->factory = $factory;
-			parent :: __construct($array);
-		}
-		
-		/**
-		 * set class of the collection
-		 * @parm string $className
-		 */
-		protected function setClass($className)
-		{
-			$this->className = $className;
-		}
-		
-		/**
-		 * build from entities
-		 * @parm EntityManager $entityManager
-		 * @parm Array $array
-		 */
-		public function addAndBuildFromEntities($entities)
-		{
-			foreach($entities as $entity)
-				$this->addAndBuildFromEntity($entity, $this->entityManager);
-		}
-		
-		/**
-		 * add an entity
-		 * @parm unknown $entity
-		 */
-		public function addAndBuildFromEntity($entity)
-		{
-			$businessObject = $this->factory->get($this->className);
-			$businessObject->setEntity($entity);
-			$this[] = $businessObject;
-		}
-		
-		public function getEntities()
-		{
-			$result = new ArrayCollection();
-			foreach($this as $bo)
-				$result[] = $bo->getEntity();
-			return $result;
-		}
-		
-		/**
-		 * Create all entities into collection
-		 */
-		public function addAll()
-		{
-			$entities = $this->entityManager->getRepository("{{ bundle }}:".$this->className)->findAll();
-			$this->addAndBuildFromEntities($entities);
-		}
-	}
-?>
+            $this->repository = $this->entityManager->getRepository('{{ bundle }}:'.$this->className);
+            parent :: __construct($array);
+        }
+
+        /**
+         * set class of the collection
+         * @param string $className
+         * @return $this
+         */
+        protected function setClass($className)
+        {
+            $this->className = $className;
+
+            return $this;
+        }
+
+        /**
+         * build from entities
+         * @param Array $entities
+         * @return $this
+         */
+        public function addAndBuildFromEntities($entities)
+        {
+            foreach($entities as $entity) {
+                $this->addAndBuildFromEntity($entity, $this->entityManager);
+            }
+
+            return $this;
+        }
+
+        /**
+         * add an entity
+         * @param unknown $entity
+         * @return $this
+         */
+        public function addAndBuildFromEntity($entity)
+        {
+            $businessObject = $this->factory->get($this->className);
+            $businessObject->setEntity($entity);
+            $this[] = $businessObject;
+
+            return $this;
+        }
+
+        /**
+         * Get all entities as array
+         * @return array|ArrayCollection
+         */
+        public function getEntities()
+        {
+            $result = new ArrayCollection();
+            foreach($this as $bo) {
+                $result[] = $bo->getEntity();
+            }
+
+            return $result;
+        }
+
+        /**
+         * Create all entities into collection
+         * @return $this
+         */
+        public function addAll()
+        {
+            $entities = $this->entityManager->getRepository("{{ bundle }}:".$this->className)->findAll();
+            $this->addAndBuildFromEntities($entities);
+
+            return $this;
+        }
+
+        /**
+         * Return array to be serialized to json
+         * @return Array
+         */
+        public function JsonSerialize()
+        {
+            $result = array();
+            foreach($this as $business) {
+                if(!$business instanceOf JsonSerializable) {
+                $result[] = $business->getEntity()->toArray();
+            } else {
+                $result[] = $business->JsonSerialize();
+            }
+        }
+
+        return $result;
+        }
+
+    /**
+     * Select only page number $age
+     * @param int $page
+     * @param int $pageSize
+     * @param QueryBuilder $query
+     * @return QueryBuilder
+     */
+    public function page($page, $pageSize, QueryBuilder $query = null) {
+        if($query === null) {
+            $query = $this->query();
+        }
+
+        $query->setFirstResult($page * $pageSize)
+            ->setMaxResults($pageSize);
+
+        return $query;
+    }
+
+    /**
+     * Call repository
+     * @param $name
+     * @param $arguments
+     * @return mixed
+     */
+    public function __call($name, $arguments)
+    {
+        if(method_exists($this->repository, $name)) {
+            return call_user_func_array(array($this->repository, $name), $arguments);
+        }
+    }
+
+    /**
+     * Load query result in collection
+     * @param QueryBuilder $query
+     * @return $this
+     */
+    public function loadResult(QueryBuilder $query)
+    {
+        $result = $query->getQuery()->getResult();
+        $this->addAndBuildFromEntities($result);
+        return $this;
+    }
+}

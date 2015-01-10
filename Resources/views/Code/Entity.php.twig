@@ -146,5 +146,16 @@
 		
 {% endfor %}
 {% endif %}
+        public function toArray()
+        {
+            $result = array();
+            foreach($this as $property => $value) {
+                if(!is_object($value) && $property != "salt" && $property != "password" && $property != "plainPassword"
+                    && $property != "confirmationToken") {
+                    $result[$property] = $value;
+                }
+            }
+
+            return $result;
+        }
 }
-?>
