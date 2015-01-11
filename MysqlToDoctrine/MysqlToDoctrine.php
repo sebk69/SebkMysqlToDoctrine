@@ -71,8 +71,8 @@ class MysqlToDoctrine
         // create configuration file
         file_put_contents($tmp . '/config.json', '{"export":"doctrine2-yaml","zip":false,"dir":"' . $tmp . '","params":{"indentation":4,"useTabs":false,"filename":"%entity%.dcm.%extension%","skipPluralNameChecking":false,"backupExistingFile":false,"useLoggedStorage":false,"enhanceManyToManyDetection":true,"logToConsole":false,"logFile":"","bundleNamespace":"","entityNamespace":"' . addslashes($this->config->getEntitiesNamespace()) . '","repositoryNamespace":"","useAutomaticRepository":true,"extendTableNameWithSchemaName":false}}');
         // parse it with mwbConverter
-        exec("echo 'n' | php " . dirname(__FILE__) . "/../mwbConverter/cli/export.php --export=doctrine2-yaml --config='" . $tmp . "/config.json' '$mysqlFilename' 2>&1", $output, $result);
-        //throw new MysqlToDoctrineException("echo 'n' | php ".dirname(__FILE__)."/../mwbConverter/cli/export.php --export=doctrine2-yaml --config='".$tmp."/config.json' '$mysqlFilename' 2>&1");
+        exec("echo 'n' | php " . __DIR__ . "/../vendor/bin/mysql-workbench-schema-export --export=doctrine2-yaml --config='" . $tmp . "/config.json' '$mysqlFilename' 2>&1", $output, $result);
+        //throw new MysqlToDoctrineException("echo 'n' | php " . __DIR__ . "/../vendor/bin/mysql-workbench-schema-export --export=doctrine2-yaml --config='" . $tmp . "/config.json' '$mysqlFilename' 2>&1");
         $textOutput = "";
         foreach ($output as $line) {
             $textOutput .= $line . "\n";
@@ -119,7 +119,7 @@ class MysqlToDoctrine
         }
 
         // Setup additionnal parameters to be usable by twig
-        $businessPath = __DIR__ . '/../../../../' . $configObject["bundle"]["path"] . '/' . $configObject["business"]["path"] . '/';
+        $businessPath = $this->rootDir.'/../' . $configObject["bundle"]["path"] . '/' . $configObject["business"]["path"] . '/';
         foreach ($this->yamlObjects as $yamlFile => $yamlObject) {
             // - Get namespace and entity name
             foreach ($yamlObject as $namespaceAndName => $subObject) ;
@@ -182,7 +182,7 @@ class MysqlToDoctrine
             // and build code
 
             // yaml file
-            $yamlBundlePath = __DIR__ . '/../../../../' . $this->getConfig()->getBundlePath() . "/Resources/config/doctrine";
+            $yamlBundlePath = $this->rootDir.'/../' . $this->getConfig()->getBundlePath() . "/Resources/config/doctrine";
             if (!file_exists($yamlBundlePath))
                 mkdir($yamlBundlePath);
             rename($tmp . "/" . $yamlFile, $yamlBundlePath . "/" . $entityName . ".orm.yml");
@@ -190,7 +190,7 @@ class MysqlToDoctrine
             // doctrine entity class and repository class
             // custom extensions and implements code
             $entityFileName = $entityName . '.php';
-            $entitiesPath = __DIR__ . '/../../../../' . $configObject["bundle"]["path"] . '/' . $configObject["entities"]["path"] . '/';
+            $entitiesPath = $this->rootDir.'/../' . $configObject["bundle"]["path"] . '/' . $configObject["entities"]["path"] . '/';
             $beginExtensions = "	/******Begin Custom Extends And Implements*/\n";
             $endExtensions = "	/******End Custom Extends And Implements*/\n";
             $customExtensions = $this->extractCustomCode($entitiesPath . $entityFileName, $beginExtensions, $endExtensions);
@@ -282,7 +282,7 @@ class MysqlToDoctrine
                 $this->templating->render('SebkMysqlToDoctrineBundle:Code:BusinessFactory.php.twig', $parms));
 
             // register BusinessFactory as service
-            $yamlServiceBundlePath = __DIR__ . '/../../../../' . $this->getConfig()->getBundlePath() . "/Resources/config/services.yml";
+            $yamlServiceBundlePath = $this->rootDir.'/../' . $this->getConfig()->getBundlePath() . "/Resources/config/services.yml";
             $serviceName = $this->config->getBusinessFactoryServiceName();
             $serviceConfig = file_get_contents($yamlServiceBundlePath);
             if (strstr($serviceConfig, $serviceName) === false) {

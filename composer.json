@@ -5,5 +5,8 @@
     "description": "Helper to generate business classes over doctrine entities",
     "autoload": {
         "psr-4": { "Sebk\\MysqlToDoctrineBundle\\": "" }
+    },
+    "require-dev": {
+        "mysql-workbench-schema-exporter/mysql-workbench-schema-exporter": "dev-master"
     }
 }
