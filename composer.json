@@ -4,6 +4,6 @@
     "type": "project",
     "description": "Helper to generate business classes over doctrine entities",
     "autoload": {
-        "psr-0": { "Sebk\\MysqlToDoctrineBundle\\": "" }
+        "psr-4": { "Sebk\\MysqlToDoctrineBundle\\": "" }
     }
 }
