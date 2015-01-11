@@ -25,13 +25,15 @@ class MysqlToDoctrine
     protected $dumpOutput;
     protected $yamlObjects = array();
     protected $config;
+    protected $rootDir;
 
-    public function __construct(Environment $templating, $dumpOutput = true)
+    public function __construct(Environment $templating, $rootDir, $dumpOutput = true)
     {
         $this->yamlParser = new Parser;
         $this->dumpOutput = new Dumper;
         $templating->addFilter('dump', new Twig_Filter_Function('var_dump'));
         $this->templating = $templating;
+        $this->rootDir = $rootDir;
     }
 
     public function setBundle($bundleName)
@@ -62,9 +64,9 @@ class MysqlToDoctrine
         // read parameters from config
         $configObject = $this->config->getConfigAsArray();
 
-        $mysqlFilename = __DIR__ . "/../Resources/config/" . $this->config->getBundle() . ".mwb";
+        $mysqlFilename = $this->rootDir.'/../' . $configObject["bundle"]["path"] . "/Resources/config/" . $this->config->getBundle() . ".mwb";
         if (!file_exists($mysqlFilename))
-            throw new MysqlToDoctrineException("You must place the mwb file with the name 'Sebk/MysqlToDoctrineBundle/Resources/config/" . $this->config->getBundle() . ".mwb'");
+            throw new MysqlToDoctrineException("You must place the mwb file with the name '".$configObject["bundle"]["path"] . "/Resources/config/" . $this->config->getBundle() . ".mwb'");
 
         // create configuration file
         file_put_contents($tmp . '/config.json', '{"export":"doctrine2-yaml","zip":false,"dir":"' . $tmp . '","params":{"indentation":4,"useTabs":false,"filename":"%entity%.dcm.%extension%","skipPluralNameChecking":false,"backupExistingFile":false,"useLoggedStorage":false,"enhanceManyToManyDetection":true,"logToConsole":false,"logFile":"","bundleNamespace":"","entityNamespace":"' . addslashes($this->config->getEntitiesNamespace()) . '","repositoryNamespace":"","useAutomaticRepository":true,"extendTableNameWithSchemaName":false}}');

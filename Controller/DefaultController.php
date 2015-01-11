@@ -11,12 +11,12 @@ use Sebk\MysqlToDoctrineBundle\Form\ConfigType;
 use Sebk\MysqlToDoctrineBundle\MysqlToDoctrine\Config;
 use Sebk\MysqlToDoctrineBundle\MysqlToDoctrine\ConfigException;
 use Symfony\Bundle\FrameworkBundle\Controller\Controller;
+use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Sebk\MysqlToDoctrineBundle\MysqlToDoctrine\MysqlToDoctrineException;
 use Symfony\Component\HttpFoundation\Session\Session;
 use Sebk\MysqlToDoctrineBundle\MysqlToDoctrine\ChooseBundle;
 use Sebk\MysqlToDoctrineBundle\Form\ChooseBundleType;
-;
 
 class DefaultController extends Controller
 {
@@ -28,6 +28,7 @@ class DefaultController extends Controller
         $request = $this->get("request");
 
         // manage bundle choice
+        ChooseBundle::setRootDir($this->get('kernel')->getRootDir());
         $bundleChoice = new ChooseBundle();
         $bundleChoiceForm = $this->createForm(new ChooseBundleType, $bundleChoice);
 
@@ -39,15 +40,11 @@ class DefaultController extends Controller
                 return $this->redirect($this->generateUrl('sebk_mysql_to_doctrine_bundle_config', array('bundle' => $bundleChoice->getBundle())));
             }
         }
-
         return $this->render("SebkMysqlToDoctrineBundle:Default:index.html.twig", array("form" => $bundleChoiceForm->createView()));
     }
 
-    public function configBundleAction($bundle, $message)
+    public function configBundleAction($bundle, $message, Request $request)
     {
-        // get request
-        $request = $this->get("request");
-
         // manage bundle choice
         $config = new Config($bundle);
         $configForm = $this->createForm(new ConfigType(), $config);
@@ -76,13 +73,13 @@ class DefaultController extends Controller
         if ($message)
             $viewParms["message"] = $message;
         if ($message == "error") {
-            $session = new Session();
+            $session = $request->getSession();
             $viewParms["error"] = $session->get("message");
         }
         return $this->render("SebkMysqlToDoctrineBundle:Default:config_bundle.html.twig", $viewParms);
     }
 
-    public function generateBundleAction($bundle)
+    public function generateBundleAction($bundle, Request $request)
     {
         //ob_start();
         try {
@@ -90,8 +87,7 @@ class DefaultController extends Controller
             $generator->setBundle($bundle);
             $generator->createEntities();
         } catch (MysqlToDoctrineException $e) {
-            $session = new Session();
-            $session->start();
+            $session = $request->getSession();
             $session->set("message", $e->getMessage());
             return $this->redirect($this->generateUrl('sebk_mysql_to_doctrine_bundle_config', array('bundle' => $bundle, 'message' => 'error')));
         }

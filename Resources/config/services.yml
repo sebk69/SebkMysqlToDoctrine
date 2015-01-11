@@ -4,7 +4,7 @@ parameters:
 services:
     sebk_mysql_to_doctrine.main:
         class: Sebk\MysqlToDoctrineBundle\MysqlToDoctrine\MysqlToDoctrine
-        arguments: [@twig]
+        arguments: [@twig, %kernel.root_dir%]
 #    sebk_mysql_to_doctrine.example:
 #        class: %sebk_mysql_to_doctrine.example.class%
 #        arguments: [@service_id, "plain_value", %parameter%]
