@@ -95,13 +95,6 @@ class MysqlToDoctrine
         foreach ($this->yamlObjects as $yamlFile => $yamlObject) {
             foreach ($yamlObject as $heading => $subobject)
                 foreach ($subobject as $tag => $value) {
-                    // correct mwbConverter bug
-                    if ($tag == "oneToMany") {
-                        foreach ($value as $field => $fieldTags) {
-                            $yamlObject[$heading][$tag][$field]["mappedBy"] = $yamlObject[$heading]["table"];
-                        }
-                    }
-
                     switch ($tag) {
                         case "manyToOne":
                         case "manyToMany":
