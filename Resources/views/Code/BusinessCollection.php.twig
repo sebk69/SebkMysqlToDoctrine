@@ -114,14 +114,14 @@
         {
             $result = array();
             foreach($this as $business) {
-                if(!$business instanceOf JsonSerializable) {
-                $result[] = $business->getEntity()->toArray();
-            } else {
-                $result[] = $business->JsonSerialize();
+                if(!$business instanceOf \JsonSerializable) {
+                    $result[] = $business->getEntity()->toArray();
+                } else {
+                    $result[] = $business->JsonSerialize();
+                }
             }
-        }
 
-        return $result;
+            return $result;
         }
 
         /**
