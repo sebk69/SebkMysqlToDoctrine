@@ -214,8 +214,8 @@ class MysqlToDoctrine
                 if ($customUses)
                     $fileContents = str_replace($beginUses . $endUses, $customUses, $fileContents);
                 // custom extensions and implements code
-                $beginExtensions = "	/******Begin Custom Extends And Implements*/\n";
-                $endExtensions = "	/******End Custom Extends And Implements*/\n";
+                $beginExtensions = "    /******Begin Custom Extends And Implements*/\n";
+                $endExtensions = "    /******End Custom Extends And Implements*/\n";
                 $customExtensions = $this->extractCustomCode($businessPath . $entityName . ".php", $beginExtensions, $endExtensions);
                 if ($customExtensions)
                     $fileContents = str_replace($beginExtensions . $endExtensions, $customExtensions, $fileContents);
