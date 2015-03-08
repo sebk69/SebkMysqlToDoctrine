@@ -145,7 +145,7 @@
 		{
 			if($this->{{ manyToOneField.functionName }} === null)
 			{
-				$this->{{ manyToOneField.functionName }} = $this->factory->get('{{ manyToOneField.functionName }}');
+				$this->{{ manyToOneField.functionName }} = $this->factory->get('{{ manyToOneField.targetEntity }}');
 				$this->{{ manyToOneField.functionName }}->setEntity($this->entity->get{{ manyToOneField.functionName }}());
 			}
 						
