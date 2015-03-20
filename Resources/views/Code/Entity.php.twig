@@ -154,6 +154,8 @@
                     && $property != "confirmationToken") {
                     $result[$property] = $value;
                 }
+            } elseif(get_class($value) == "DateTime") {
+                $result[$property] = $value->format("Y-m-d");
             }
 
             return $result;
