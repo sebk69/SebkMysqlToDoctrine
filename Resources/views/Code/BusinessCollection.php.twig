@@ -47,8 +47,10 @@
          */
         public function addAndBuildFromEntities($entities)
         {
-            foreach($entities as $entity) {
-                $this->addAndBuildFromEntity($entity, $this->entityManager);
+            if(count($entities)) {
+                foreach ($entities as $entity) {
+                    $this->addAndBuildFromEntity($entity, $this->entityManager);
+                }
             }
 
             return $this;
