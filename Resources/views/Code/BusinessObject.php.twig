@@ -101,7 +101,7 @@
 		 */
 		public function __call($method, $arguments)
 		{
-            if(substr($method, 0, 3) == "get" || substr($method, 0, 3) == "set")
+            if(substr($method, 0, 3) == "get" || substr($method, 0, 3) == "set" || $method == "toArray")
 			{
 				if(method_exists($this->getEntity(), $method))
 					return call_user_func_array(array($this->getEntity(), $method), $arguments);

@@ -153,11 +153,11 @@
                 if(!is_object($value) && $property != "salt" && $property != "password" && $property != "plainPassword"
                     && $property != "confirmationToken") {
                     $result[$property] = $value;
+                } elseif(is_object($value) && get_class($value) == "DateTime") {
+                    $result[$property] = $value->format("Y-m-d");
                 }
-            } elseif(get_class($value) == "DateTime") {
-                $result[$property] = $value->format("Y-m-d");
             }
 
             return $result;
         }
-}
+    }
