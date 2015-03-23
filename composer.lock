@@ -80,12 +80,12 @@
             "source": {
                 "type": "git",
                 "url": "https://github.com/johmue/mysql-workbench-schema-exporter.git",
-                "reference": "10b79cd3cbbd5553bf306e6a788cec5f9671e255"
+                "reference": "988aee69f0cd717fd536aac73ca4a8fd8a8d1f53"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/johmue/mysql-workbench-schema-exporter/zipball/10b79cd3cbbd5553bf306e6a788cec5f9671e255",
-                "reference": "10b79cd3cbbd5553bf306e6a788cec5f9671e255",
+                "url": "https://api.github.com/repos/johmue/mysql-workbench-schema-exporter/zipball/988aee69f0cd717fd536aac73ca4a8fd8a8d1f53",
+                "reference": "988aee69f0cd717fd536aac73ca4a8fd8a8d1f53",
                 "shasum": ""
             },
             "require": {
@@ -132,21 +132,21 @@
                 "sequelizejs",
                 "zend"
             ],
-            "time": "2014-12-12 06:20:16"
+            "time": "2014-12-22 03:16:02"
         },
         {
             "name": "symfony/yaml",
-            "version": "v2.5.9",
+            "version": "v2.5.10",
             "target-dir": "Symfony/Component/Yaml",
             "source": {
                 "type": "git",
                 "url": "https://github.com/symfony/Yaml.git",
-                "reference": "522b6c2f45504521fd411a6b1632958bfee20845"
+                "reference": "6eb40abc613d80828d55a40811c7a3ca491bc926"
             },
             "dist": {
                 "type": "zip",
-                "url": "https://api.github.com/repos/symfony/Yaml/zipball/522b6c2f45504521fd411a6b1632958bfee20845",
-                "reference": "522b6c2f45504521fd411a6b1632958bfee20845",
+                "url": "https://api.github.com/repos/symfony/Yaml/zipball/6eb40abc613d80828d55a40811c7a3ca491bc926",
+                "reference": "6eb40abc613d80828d55a40811c7a3ca491bc926",
                 "shasum": ""
             },
             "require": {
@@ -179,7 +179,7 @@
             ],
             "description": "Symfony Yaml Component",
             "homepage": "http://symfony.com",
-            "time": "2015-01-03 14:48:25"
+            "time": "2015-01-25 04:37:39"
         }
     ],
     "aliases": [],
