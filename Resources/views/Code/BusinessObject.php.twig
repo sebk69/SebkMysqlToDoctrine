@@ -130,7 +130,9 @@
 		 */
 		public function setEntity($entity, $force = false)
 		{
-			$this->entity = $entity;
+            if($entity !== null) {
+                $this->entity = $entity;
+            }
 			
 			return $this;
 		}

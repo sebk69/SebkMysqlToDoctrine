@@ -77,6 +77,7 @@ class MysqlToDoctrine
         foreach ($output as $line) {
             $textOutput .= $line . "\n";
         }
+        //var_dump($textOutput);exit;
 
         // read all files into yamlObjects
         $this->yamlObjects = array();
