@@ -208,7 +208,7 @@
 		/**
 		 * persist object and dependencies
 		 */
-		public function persist()
+		public function persist($flush = true)
 		{
 {% if manyToOne is defined %}
 {% for manyToOneField in manyToOne %}
@@ -232,7 +232,9 @@
 {% endfor %}
 {% endif %}
 			$this->entityManager->persist($this->entity);
+                        if($flush) {
             $this->entityManager->flush();
+                        }
 		}
 		
 		/**
