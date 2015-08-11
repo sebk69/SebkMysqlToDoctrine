@@ -130,7 +130,7 @@
 		 */
 		public function setEntity($entity, $force = false)
 		{
-            if($entity !== null) {
+            if($entity !== null || $force) {
                 $this->entity = $entity;
             }
 			
@@ -159,9 +159,13 @@
 		 * @param {{ manyToOneField.targetEntity }} ${{ manyToOneField.functionName }}
          * @return $this
 		 */
-		public function set{{ manyToOneField.functionName }}({{ manyToOneField.targetEntity }} ${{ manyToOneField.functionName }})
+		public function set{{ manyToOneField.functionName }}(${{ manyToOneField.functionName }})
 		{
-			$this->{{ manyToOneField.functionName }} = ${{ manyToOneField.functionName }};
+            if(${{ manyToOneField.functionName }} !== null) {
+                $this->{{ manyToOneField.functionName }} = ${{ manyToOneField.functionName }};
+            } else {
+                $this->get{{ manyToOneField.functionName }}()->removed = true;
+            }
 			return $this;
 		}
 		
@@ -208,11 +212,13 @@
 		/**
 		 * persist object and dependencies
 		 */
-		public function persist()
+		public function persist($flush = true)
 		{
 {% if manyToOne is defined %}
 {% for manyToOneField in manyToOne %}
-			if($this->{{ manyToOneField.functionName }} !== null) {
+			if(isset($this->{{ manyToOneField.functionName }}->removed) && $this->{{ manyToOneField.functionName }}->removed) {
+                $this->entity->set{{ manyToOneField.functionName }}(null);
+            } elseif($this->{{ manyToOneField.functionName }} !== null) {
 				$this->entity->set{{ manyToOneField.functionName }}($this->{{ manyToOneField.functionName }}->getEntity());
             }
 {% endfor %}
@@ -232,7 +238,9 @@
 {% endfor %}
 {% endif %}
 			$this->entityManager->persist($this->entity);
+                        if($flush) {
             $this->entityManager->flush();
+                        }
 		}
 		
 		/**
