@@ -45,6 +45,7 @@ class DefaultController extends Controller
 
     public function configBundleAction($bundle, $message, Request $request)
     {
+        ChooseBundle::setRootDir($this->get('kernel')->getRootDir());
         // manage bundle choice
         $config = new Config($bundle);
         $configForm = $this->createForm(new ConfigType(), $config);
@@ -81,10 +82,12 @@ class DefaultController extends Controller
 
     public function generateBundleAction($bundle, Request $request)
     {
+        ChooseBundle::setRootDir($this->get('kernel')->getRootDir());
         //ob_start();
         try {
             $generator = $this->get("sebk_mysql_to_doctrine.main");
-            $generator->setBundle($bundle);
+            $bundleChoice = new ChooseBundle();
+            $generator->setBundle($bundle, $bundleChoice->getBundlePath($bundle));
             $generator->createEntities();
         } catch (MysqlToDoctrineException $e) {
             $session = $request->getSession();

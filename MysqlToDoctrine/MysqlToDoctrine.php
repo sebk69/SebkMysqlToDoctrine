@@ -36,7 +36,7 @@ class MysqlToDoctrine
         $this->rootDir = $rootDir;
     }
 
-    public function setBundle($bundleName)
+    public function setBundle($bundleName, $bundlePath)
     {
         $this->bundle = $bundleName;
         $this->config = new Config($this->bundle);
@@ -171,6 +171,49 @@ class MysqlToDoctrine
                         $yamlObject["manyToMany"][$manyToManyName]["functionName"] = self::formatFieldNameForMethod($manyToManyName);
                     }
 
+            }
+
+            // delete fields of parent class
+            $reflexion = new \ReflectionClass($this->config->getEntitiesNamespace().'\\'.$entityName);
+            if($parent = $reflexion->getParentClass()) {
+                $parentProperties = $parent->getProperties();
+                foreach ($parentProperties as $property) {
+                    $propertyLower = str_replace("_", "", strtolower($property->getName()));
+                    foreach($yamlObject["fields"] as $fieldIndex => $field) {
+                        $fieldLower = str_replace("_", "", strtolower($fieldIndex));
+                        if($fieldLower == $propertyLower) {
+                            unset($yamlObject["fields"][$fieldIndex]);
+                            break;
+                        }
+                    }
+                    if(isset($yamlObject["oneToMany"])) {
+                        foreach ($yamlObject["oneToMany"] as $fieldIndex => $field) {
+                            $fieldLower = str_replace("_", "", strtolower($fieldIndex));
+                            if ($fieldLower == $propertyLower) {
+                                unset($yamlObject["oneToMany"][$fieldIndex]);
+                                break;
+                            }
+                        }
+                    }
+                    if(isset($yamlObject["manyToOne"])) {
+                        foreach ($yamlObject["manyToOne"] as $fieldIndex => $field) {
+                            $fieldLower = str_replace("_", "", strtolower($fieldIndex));
+                            if ($fieldLower == $propertyLower) {
+                                unset($yamlObject["manyToOne"][$fieldIndex]);
+                                break;
+                            }
+                        }
+                    }
+                    if(isset($yamlObject["manyToMany"])) {
+                        foreach ($yamlObject["manyToMany"] as $fieldIndex => $field) {
+                            $fieldLower = str_replace("_", "", strtolower($fieldIndex));
+                            if ($fieldLower == $propertyLower) {
+                                unset($yamlObject["manyToMany"][$fieldIndex]);
+                                break;
+                            }
+                        }
+                    }
+                }
             }
 
             // and build code

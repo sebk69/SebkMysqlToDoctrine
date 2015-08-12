@@ -19,6 +19,11 @@ class ChooseBundle
         self::$srcDir = $rootDir."/../src/";
     }
 
+    public static function getRootDir()
+    {
+        return self::$srcDir;
+    }
+
     public function getBundle()
     {
         return $this->bundle;
@@ -54,5 +59,43 @@ class ChooseBundle
         $bundles[] = "";
         asort($bundles);
         return $bundles;
+    }
+
+    public function ListPath()
+    {
+        $bundles = array();
+
+        // get src directory
+        $srcDir = \dir(self::$srcDir);
+
+        // scan it
+        while (false !== ($devDirName = $srcDir->read())) {
+            if ($devDirName != "." && $devDirName != ".." && is_dir(self::$srcDir . $devDirName)) {
+                // get dev directory name
+                $devDir = \dir(self::$srcDir . $devDirName);
+                // scan it for bundles
+                while (false !== ($bundle = $devDir->read())) {
+                    if ($bundle != "." && $bundle != ".." && is_dir(self::$srcDir . $devDirName . "/" . $bundle))
+                        if (substr($bundle, strlen($bundle) - 6) == "Bundle")
+                            // it is a bundle, store it
+                            $bundles[$devDirName . "/".$bundle] = $devDirName . ucfirst($bundle);
+                }
+            }
+        }
+
+        $bundles[] = "";
+        asort($bundles);
+        return $bundles;
+    }
+
+    public function getBundlePath($bundle)
+    {
+        foreach($this->listPath() as $scanPath => $scanBbundle) {
+            if($bundle == $scanBbundle) {
+                return $scanPath;
+            }
+        }
+
+        return "";
     }
 }

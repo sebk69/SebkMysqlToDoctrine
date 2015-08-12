@@ -288,14 +288,17 @@
         /**
          * Free object memory
          */
-        public function free() {
+        public function free($cascade = false) {
+            if($cascade) {
 {% if manyToOne is defined %}
 {% for manyToOneField in manyToOne %}
-            if(is_object($this->{{ manyToOneField.functionName }})) {
-                $this->{{ manyToOneField.functionName }}->free();
-            }
+                if(is_object($this->{{ manyToOneField.functionName }})) {
+                    $this->{{ manyToOneField.functionName }}->free();
+                }
 {% endfor %}
 {% endif %}
+            }
+
             $this->entityManager->detach($this->entity);
             unset($this->entity);
             unset($this);

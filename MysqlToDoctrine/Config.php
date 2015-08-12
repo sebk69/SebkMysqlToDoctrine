@@ -26,8 +26,8 @@ class Config
         $this->bundle = $bundle;
         $this->yamlParser = new Parser();
         $this->yamlDumper = new Dumper();
-        if (file_exists(__DIR__ . '/../Resources/config/' . $this->bundle . '.yaml')) {
-            $yaml = file_get_contents(__DIR__ . '/../Resources/config/' . $this->bundle . '.yaml');
+        if (file_exists($this->getFileName())) {
+            $yaml = file_get_contents($this->getFileName());
             $this->configObject = $this->yamlParser->parse($yaml);
         }
     }
@@ -263,7 +263,13 @@ class Config
         $yaml = $this->yamlDumper->dump($this->configObject, 10);
 
         // write it on disk
-        file_put_contents(__DIR__ . '/../Resources/config/' . $this->bundle . '.yaml', $yaml);
+        file_put_contents($this->getFileName(), $yaml);
+    }
+
+    public function getFileName()
+    {
+        $bundles = new ChooseBundle();
+        return ChooseBundle::getRootDir()."/".$bundles->getBundlePath($this->getBundle()).'/Resources/config/mysqlToDoctrine.yaml';
     }
 }
 
