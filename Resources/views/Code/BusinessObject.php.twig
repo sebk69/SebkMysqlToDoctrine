@@ -109,6 +109,34 @@
 			
 			trigger_error("Method '$method' does not exists in {{ entityName }} entity (Raised in business object __call)", E_USER_ERROR);
 		}
+
+        public function __get($property)
+        {
+            $parts = explode("_", $property);
+            $result = "";
+            foreach ($parts as $part)
+                $result .= ucfirst($part);
+
+            $property = "$result";
+            if(method_exists($this->getEntity(), "get$property"))
+                return call_user_func_array(array($this->getEntity(), "get$property"), array());
+
+            trigger_error("Method 'get$property' does not exists in Article entity (Raised in business object __get)", E_USER_ERROR);
+        }
+
+        public function __set($property, $argument)
+        {
+            $parts = explode("_", $property);
+            $result = "";
+            foreach ($parts as $part)
+                $result .= ucfirst($part);
+
+            $property = "$result";
+            if(method_exists($this->getEntity(), "set$property"))
+                return call_user_func_array(array($this->getEntity(), "set$property"), array($argument));
+
+            trigger_error("Method 'set$property' does not exists in Article entity (Raised in business object __set)", E_USER_ERROR);
+        }
 		
 		/**
 		 * get entity property
